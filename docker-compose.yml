@@ -1,0 +1,16 @@
+services:
+  dashboard:
+    build: .
+    ports: ["8501:8501"]
+  api:
+    build: .
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000
+    ports: ["8000:8000"]
+  # Live sensor on the host network (Linux only, needs packet-capture privileges):
+  #   docker compose --profile sensor up sensor
+  sensor:
+    build: .
+    profiles: ["sensor"]
+    network_mode: host
+    cap_add: [NET_ADMIN, NET_RAW]
+    command: python -m xgnn_ids live --window 20
