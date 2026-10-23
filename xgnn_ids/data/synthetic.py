@@ -239,7 +239,39 @@ def _iot(rng) -> Profile:
     return p
 
 
-PROFILES = {"enterprise": _enterprise, "iot": _iot}
+def _home(rng) -> Profile:
+    """A home / small-office Wi-Fi network as a laptop would see it: one router, a few laptops and phones,
+    a smart TV, a NAS, and very bursty browsing to hundreds of CDN addresses."""
+    net = "192.168.1."
+    router, nas = net + "1", net + "20"
+    laptops = [net + str(i) for i in range(10, 14)]
+    phones = [net + str(i) for i in range(30, 36)]
+    others = [net + "40", net + "50", net + "51", net + "52"]          # TV, smart plugs, speaker
+    p = Profile(
+        name="home",
+        servers={"web": nas, "dns": router, "router": router, "nas": nas, "ssh": nas, "file": nas},
+        clients=laptops + phones + others,
+        admins=laptops[:1],
+        external=_public_ips(rng, 700),
+        visitors=_public_ips(rng, 8),
+        attackers=_public_ips(rng, 4),
+        web_target=(nas, 80),
+        auth_targets=[(nas, 22), (router, 23)],
+        scan_targets=laptops + [nas, router],
+        c2_ports=[443, 8443, 6667],
+        lateral_ports=[445, 22, 3389, 139],
+        ddos_udp_frac=0.3,
+    )
+    p.laptops, p.phones, p.tv = laptops, phones, others[0]
+    p.benign = [
+        (_b_home_browsing, 0.0), (_b_home_quic, 1.2), (_b_home_dns, 4.0), (_b_home_discovery, 0.0),
+        (_b_home_streaming, 0.03), (_b_home_background, 0.0), (_b_home_failed, 0.4), (_b_ntp, 0.1),
+        (_b_home_nas, 0.15),
+    ]
+    return p
+
+
+PROFILES = {"enterprise": _enterprise, "iot": _iot, "home": _home}
 
 # ---------------------------------------------------------------- benign traffic
 
@@ -370,6 +402,97 @@ def _b_flash_crowd(rng, t0, length, P: Profile):
     return _flows(rng, ts, rng.choice(crowd, n), P.web_target[0], np.where(rng.random(n) < 0.7, 443, 80), 6,
                   _ln(rng, 1.5, 1.0, n), fp, fp * rng.uniform(1.0, 3.0, n), _ln(rng, 250, 0.4, n),
                   _ln(rng, 1100, 0.4, n), "normal", "BENIGN", "flash-crowd", 0.3)
+
+
+# ---------------------------------------------------------------- home / laptop traffic
+
+def _b_home_browsing(rng, ts, P: Profile, t0: float = 0.0, t1: float = 0.0):
+    """Page loads: one device opens 5-60 HTTPS connections within ~2 s to 3-25 CDN / tracker addresses."""
+    parts = []
+    loads = _poisson_times(rng, 0.35, t0, t1)
+    devices = P.laptops * 3 + P.phones
+    for t in loads:
+        dev = rng.choice(devices)
+        k = int(rng.integers(5, 60))
+        dests = _zipf_choice(rng, P.external, int(rng.integers(3, 26)), 1.05)
+        times = np.sort(t + rng.exponential(0.5, k))
+        fp = 3 + _geom(rng, 0.12, k)
+        parts.append(_flows(rng, times, dev, rng.choice(dests, k), np.where(rng.random(k) < 0.9, 443, 80), 6,
+                            np.minimum(_ln(rng, 3.0, 1.4, k), 300), fp, fp * rng.uniform(1.0, 4.0, k),
+                            _ln(rng, 160, 0.5, k), _ln(rng, 1100, 0.4, k), "normal", "BENIGN", "home-browsing", 0.35))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
+def _b_home_quic(rng, ts, P: Profile):
+    n = len(ts)
+    fp = np.round(_ln(rng, 25, 1.2, n)) + 2
+    return _flows(rng, ts, rng.choice(P.laptops + P.phones, n), _zipf_choice(rng, P.external, n, 1.2), 443, 17,
+                  np.minimum(_ln(rng, 6.0, 1.3, n), 300), fp, fp * rng.uniform(1.0, 6.0, n), _ln(rng, 300, 0.6, n),
+                  _ln(rng, 1150, 0.2, n), "udp", "BENIGN", "home-quic")
+
+
+def _b_home_dns(rng, ts, P: Profile):
+    n = len(ts)
+    fp = np.where(rng.random(n) < 0.85, 1, 2)
+    return _flows(rng, ts, rng.choice(P.clients, n), P.servers["router"], 53, 17, _ln(rng, 0.02, 0.8, n), fp, fp,
+                  rng.uniform(55, 95, n), rng.uniform(90, 400, n), "udp", "BENIGN", "home-dns")
+
+
+def _b_home_discovery(rng, ts, P: Profile, t0: float = 0.0, t1: float = 0.0):
+    """mDNS / SSDP / LLMNR multicast announcements: periodic, never answered by the multicast address."""
+    parts = []
+    targets = [("224.0.0.251", 5353), ("239.255.255.250", 1900), ("224.0.0.252", 5355)]
+    for dev in P.clients:
+        for addr, port in targets:
+            if rng.random() < 0.4:
+                continue
+            period = rng.uniform(20, 120)
+            times = np.arange(t0 + rng.uniform(0, period), t1, period)
+            n = len(times)
+            if n:
+                parts.append(_flows(rng, times, dev, addr, port, 17, _ln(rng, 0.5, 1.0, n), rng.integers(1, 4, n), 0,
+                                    rng.uniform(80, 400, n), 0, "udp", "BENIGN", "home-discovery"))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
+def _b_home_streaming(rng, ts, P: Profile):
+    n = len(ts)
+    fp = np.round(_ln(rng, 800, 0.6, n))
+    return _flows(rng, ts, P.tv, _zipf_choice(rng, P.external[:40], n), 443, 6, _ln(rng, 120, 0.5, n), fp,
+                  fp * rng.uniform(3, 8, n), _ln(rng, 80, 0.2, n), _ln(rng, 1380, 0.05, n), "normal", "BENIGN",
+                  "home-streaming", 0.2)
+
+
+def _b_home_background(rng, ts, P: Profile, t0: float = 0.0, t1: float = 0.0):
+    """Periodic app / OS telemetry: every device checks in with a few services every 30-300 s (beacon-like)."""
+    parts = []
+    for dev in P.clients:
+        for dst in _zipf_choice(rng, P.external[:60], int(rng.integers(1, 5))):
+            period = rng.uniform(30, 300)
+            times = np.arange(t0 + rng.uniform(0, period), t1, period) + rng.normal(0, 1.0)
+            n = len(times)
+            if n:
+                fp = 3 + _geom(rng, 0.5, n)
+                parts.append(_flows(rng, times, dev, dst, 443, 6, _ln(rng, 0.6, 0.6, n), fp, fp * rng.uniform(1, 2, n),
+                                    _ln(rng, 250, 0.4, n), _ln(rng, 400, 0.5, n), "normal", "BENIGN", "home-telemetry"))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
+def _b_home_failed(rng, ts, P: Profile):
+    """Connections that never complete (blocked trackers, offline hosts, IPv4 fallbacks): SYN with no reply or a RST."""
+    n = len(ts)
+    rst = rng.random(n) < 0.4
+    return _flows(rng, ts, rng.choice(P.laptops + P.phones, n), rng.choice(P.external, n),
+                  np.where(rng.random(n) < 0.85, 443, 80), 6, _ln(rng, 2.0, 0.8, n), rng.integers(1, 4, n),
+                  rst.astype(int), 60, 40, "syn_only", "BENIGN", "home-failed-connection")
+
+
+def _b_home_nas(rng, ts, P: Profile):
+    n = len(ts)
+    fp = np.round(_ln(rng, 60, 1.0, n))
+    return _flows(rng, ts, rng.choice(P.laptops, n), P.servers["nas"], rng.choice([445, 80, 443], n), 6,
+                  _ln(rng, 4.0, 1.0, n), fp, fp * rng.uniform(1, 3, n), _ln(rng, 300, 0.6, n), _ln(rng, 1200, 0.3, n),
+                  "normal", "BENIGN", "home-nas")
 
 
 # ---------------------------------------------------------------- attacks
@@ -528,6 +651,9 @@ ATTACKS: dict[str, tuple[Callable, tuple[float, float]]] = {
 }
 
 
+SELF_TIMED = {_b_iot_telemetry, _b_home_browsing, _b_home_discovery, _b_home_background}
+
+
 def _episode_starts(rng, n: int, duration: float, ep_len: float, split) -> list[float]:
     """Spread episodes so that each chronological split region receives some."""
     bounds = np.cumsum([0.0, *split]) * duration
@@ -562,7 +688,7 @@ def generate_traffic(
     P = PROFILES[profile](rng)
     parts = []
     for fn, rate in P.benign:
-        if fn is _b_iot_telemetry:
+        if fn in SELF_TIMED:
             parts.append(fn(rng, None, P, 0.0, duration_s))
         else:
             parts.append(fn(rng, _poisson_times(rng, rate * benign_scale, 0, duration_s), P))

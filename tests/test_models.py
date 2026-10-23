@@ -169,3 +169,6 @@ def test_detector_roundtrip(trained):
     assert exp["narrative"].startswith("**")
     inc = det.incidents(res)
     assert inc and all("firewall" in i for i in inc)
+
+    empty = det.detect(df.iloc[0:0])                 # live capture before the first flow completes
+    assert empty.graphs == [] and empty.alerts.empty

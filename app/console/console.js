@@ -40,7 +40,9 @@ const S = {
   panel: { mode: "list" }, highlight: null, rulesFmt: "iptables", attrMethod: null,
   scenario: { profile: "enterprise", minutes: 10, attacks: ["DDoS", "PortScan", "Botnet", "BruteForce"], intensity: 1, seed: 42 },
   evalRendered: null, methodRendered: false,
+  follow: true, livePolls: null, liveNext: 0, liveTimer: null,
 };
+const isLive = () => !!(S.data && S.data.meta.live && S.data.meta.live.running);
 
 window.addEventListener("message", (e) => {
   if (e.data && e.data.type === "streamlit:render") onRender(e.data.args || {});
@@ -54,8 +56,58 @@ function onRender(args) {
   S.data = p;
   if (p.nonce && p.nonce === pendingNonce) { pendingNonce = null; busy(false); }
   showError(p.error);
-  if (changed) { S.key = p.meta && p.meta.key; onNewData(); } else { onUpdate(); }
+  if (changed) { S.key = p.meta && p.meta.key; onNewData(); }
+  else if (isLive() && p.meta.live.polls !== S.livePolls) { liveRefresh(); }
+  else { onUpdate(); }
+  S.livePolls = p.meta.live ? p.meta.live.polls : null;
+  syncLive();
 }
+
+/* ------------------------------------------------------------------ live capture */
+function syncLive() {
+  const live = isLive();
+  $("#liveBadge").hidden = !live;
+  $("#scenarioLine").hidden = live;
+  clearInterval(S.liveTimer);
+  if (!live) return;
+  const L = S.data.meta.live;
+  if (!S.liveNext || S.liveNext < Date.now()) S.liveNext = Date.now() + L.window_s * 1000;
+  const tickLive = () => {
+    if (S.panel.mode !== "list") {             // investigating: hold the data still
+      S.liveNext = Date.now() + 1000;
+      $("#liveText").innerHTML = `<b>Live</b> on ${esc(L.iface)}, updates paused while you investigate`;
+      return;
+    }
+    const left = Math.max(0, Math.round((S.liveNext - Date.now()) / 1000));
+    $("#liveText").innerHTML = `<b>Live</b> on ${esc(L.iface)}, ${mmss(L.elapsed)} captured, ${fmt(L.packets)} packets, next update in ${left} s`;
+    if (left <= 0 && !pendingNonce) {
+      S.liveNext = Date.now() + L.window_s * 1000;
+      request("live_poll");
+    }
+  };
+  tickLive();
+  S.liveTimer = setInterval(tickLive, 1000);
+}
+
+function liveRefresh() {
+  drawWave();
+  const n = S.data.windows.length;
+  if (!n) { renderHeadline(); renderLegend(); renderClock(); renderSide(); return; }
+  gotoWindow(S.follow || S.win >= n ? n - 1 : S.win);
+  renderSide();
+}
+
+$("#stopLive").addEventListener("click", () => {
+  busy(true, "Stopping the capture");
+  request("live_stop");
+});
+$("#startLive").addEventListener("click", () => {
+  openSheet(false);
+  busy(true, "Starting live capture");
+  S.follow = true;
+  S.liveNext = 0;
+  request("live_start", { iface: $("#ifaceSelect").value || null });
+});
 
 /* ------------------------------------------------------------------ busy / errors */
 function busy(on, text) {
@@ -81,7 +133,9 @@ function onNewData() {
   renderDrift();
   M.reset();
   drawWave();
+  if (isLive()) { S.follow = true; S.win = Math.max(0, w.length - 1); }
   gotoWindow(S.win, true);
+  if (!w.length) { renderHeadline(); renderLegend(); renderClock(); }
   renderSide();
   S.evalRendered = null;
   if (S.view === "eval") renderEval();
@@ -116,7 +170,7 @@ function renderTop() {
   const m = S.data.meta;
   const sc = m.scenario;
   const line = sc
-    ? `<b>${sc.profile === "iot" ? "IoT network" : "Enterprise LAN"}</b>, ${sc.minutes} min, ${sc.attacks.length ? sc.attacks.map((a) => NICE[a]).join(", ") : "no attacks"}`
+    ? `<b>${{ iot: "IoT network", home: "Home Wi-Fi" }[sc.profile] || "Enterprise LAN"}</b>, ${sc.minutes} min, ${sc.attacks.length ? sc.attacks.map((a) => NICE[a]).join(", ") : "no attacks"}`
     : `<b>${esc(m.source || "Capture")}</b>, ${fmt(m.flows)} flows`;
   $("#scenarioLine").innerHTML = line;
   const sel = $("#modelSelect");
@@ -319,6 +373,7 @@ function gotoWindow(i, first = false) {
   const n = S.data.windows.length;
   if (!n) return;
   S.win = Math.max(0, Math.min(n - 1, i));
+  if (isLive()) S.follow = S.win === n - 1;
   M.show(S.win, first);
   renderHeadline();
   renderLegend();
@@ -334,9 +389,16 @@ function activeIncidents(w) {
 
 function renderHeadline() {
   const d = S.data, W = d.windows[S.win];
-  if (!W) { $("#headline").innerHTML = ""; return; }
+  if (!W) {
+    $("#headline").innerHTML = isLive()
+      ? `<div class="when">Live capture on ${esc(d.meta.live.iface)}</div><h1>Listening for traffic</h1><p>The first graph appears once the first ${d.meta.live.window_s}-second window is complete. Keep using the network: open a few websites.</p>`
+      : "";
+    return;
+  }
   const act = activeIncidents(S.win);
-  const when = `<div class="when">${mmss(W.t0)} to ${mmss(W.t1)} of ${mmss(d.meta.duration)}</div>`;
+  const when = isLive()
+    ? `<div class="when">Captured ${mmss(W.t0)} to ${mmss(W.t1)} after the capture started${S.win === d.windows.length - 1 ? ", latest window" : ""}</div>`
+    : `<div class="when">${mmss(W.t0)} to ${mmss(W.t1)} of ${mmss((d.meta.t_start || 0) + d.meta.duration)}</div>`;
   let h1, p;
   if (act.length) {
     const top = act[0];
@@ -347,8 +409,8 @@ function renderHeadline() {
     h1 = "Scattered alerts";
     p = `${fmt(W.alerts)} flows look malicious but do not form an incident yet.`;
   } else {
-    h1 = "Quiet window";
-    p = `${fmt(W.flows)} flows between ${fmt(W.hosts)} hosts. Nothing crossed the alert threshold.`;
+    h1 = "No attack detected";
+    p = `${fmt(W.flows)} flows between ${fmt(W.hosts)} hosts in this window, all classified as normal traffic.`;
   }
   $("#headline").innerHTML = `${when}<h1>${h1}</h1><p>${p}</p>`;
 }
@@ -356,7 +418,7 @@ function renderHeadline() {
 function renderLegend() {
   const W = S.data.windows[S.win];
   const g = S.data.graphs[S.win];
-  if (!W) return;
+  if (!W) { $("#legend").innerHTML = ""; return; }
   const items = [];
   ATTACKS.forEach((c, k) => { if (W.counts[k] > 0) items.push(`<span><i style="background:${COLOR[c]}"></i>${NICE[c]} ${fmt(W.counts[k])}</span>`); });
   items.push(`<span><i style="background:${COLOR.BENIGN}"></i>Benign ${fmt(W.flows - W.alerts)}</span>`);
@@ -367,8 +429,10 @@ function renderLegend() {
 
 function renderClock() {
   const d = S.data, W = d.windows[S.win];
-  if (!W) return;
-  $("#clock").innerHTML = `${mmss(W.t1)} / ${mmss(d.meta.duration)}<small>Window ${S.win + 1} of ${d.windows.length}</small>`;
+  if (!W) { $("#clock").innerHTML = isLive() ? "0:00<small>Listening</small>" : ""; return; }
+  $("#clock").innerHTML = isLive()
+    ? `${mmss(W.t1)}<small>${S.follow ? "Following live" : `Window ${S.win + 1} of ${d.windows.length}`}</small>`
+    : `${mmss(W.t1)} / ${mmss((d.meta.t_start || 0) + d.meta.duration)}<small>Window ${S.win + 1} of ${d.windows.length}</small>`;
 }
 
 /* ------------------------------------------------------------------ transport */
@@ -419,7 +483,8 @@ function drawWave() {
       .attr("y", lane * 7).attr("height", 4).attr("rx", 2).attr("fill", COLOR[inc.cls])
       .append("title").text(`${inc.id}: ${inc.title}`);
   });
-  const ticks = d3.ticks(0, S.data.meta.duration || 1, Math.max(2, Math.floor(W / 110)));
+  const t0 = S.data.meta.t_start || 0;
+  const ticks = d3.ticks(t0, t0 + (S.data.meta.duration || 1), Math.max(2, Math.floor(W / 110)));
   const tx = (t) => {
     const i = ws.findIndex((w) => w.t1 > t);
     return i < 0 ? W : x(i) + x.bandwidth() * Math.min(1, Math.max(0, (t - ws[i].t0) / ((ws[i].t1 - ws[i].t0) || 1)));
@@ -484,7 +549,7 @@ function renderList(side) {
   const live = new Set(activeIncidents(S.win).map((i) => i.id));
   let html = `<div class="side-head"><h2>Incidents</h2><span class="count">${incs.length} from ${fmt(S.data.meta.alerts)} malicious flows</span></div>`;
   if (!incs.length) {
-    html += `<div class="empty"><b>No incidents</b>No group of alerts was large enough to form an incident. Inject an attack with Change scenario, or lower the threshold.</div>`;
+    html += `<div class="empty"><b>No attacks detected</b>${isLive() ? "All traffic captured so far was classified as normal. The list updates every window." : "All flows in this capture were classified as normal traffic, or too few were suspicious to form an incident."}</div>`;
   }
   html += incs.map((i) => `
     <button class="inc ${live.has(i.id) ? "active" : ""}" data-inc="${esc(i.id)}">
@@ -605,19 +670,24 @@ function renderExplain(side) {
     bindBack();
     return;
   }
-  const p = ex.prediction, f = ex.flow, cls = p.label;
-  const truth = S.data.truth && f.true_label && f.true_label !== "UNKNOWN"
-    ? `<div class="truth ${f.true_label === cls ? "ok" : "bad"}">Ground truth: ${NICE[f.true_label] || esc(f.true_label)}${f.true_label === cls ? ", correct" : ", the model is wrong here"}</div>` : "";
+  const p = ex.prediction, f = ex.flow, raw = p.label;
+  const thr = S.data.meta.alert_threshold == null ? 0.5 : S.data.meta.alert_threshold;
+  const gated = raw !== "BENIGN" && p.confidence < thr;      // a low-confidence guess is not an alert
+  const cls = gated ? "BENIGN" : raw;
+  const known = S.data.truth && f.true_label && f.true_label !== "UNKNOWN";
+  const truth = known
+    ? `<div class="truth ${f.true_label === cls ? "ok" : "bad"}">Ground truth: ${f.true_label === "BENIGN" ? "no attack" : NICE[f.true_label] || esc(f.true_label)}${f.true_label === cls ? ", correct" : ", missed by the model"}</div>` : "";
+  const driftHigh = S.data.meta.drift != null && S.data.meta.drift >= 0.25;
+  const note = gated
+    ? `<div class="verdict-note">The model's best guess was ${NICE[raw]} at ${pct(p.confidence, 0)}, below the ${pct(thr, 0)} needed to raise an alert, so this flow is treated as normal traffic.${driftHigh ? " This network also looks different from the training data, which is why the model is unsure." : ""}</div>`
+    : cls === "BENIGN" ? `<div class="verdict-note">The model considers this flow normal traffic.</div>` : "";
   html += `<div class="block">
-      <div class="verdict"><span class="swatch" style="background:${COLOR[cls]}"></span><span class="cls">${NICE[cls]}</span>
-        <span class="pct">${pct(p.confidence, 0)}<small>confidence</small></span></div>
-      <div class="tuple">${esc(f.src_ip)}:${f.src_port} to ${esc(f.dst_ip)}:${f.dst_port} ${esc(f.protocol)}</div>${truth}${lowConf(p.confidence)}
+      <div class="verdict"><span class="swatch" style="background:${COLOR[cls]}"></span><span class="cls">${cls === "BENIGN" ? "No attack" : NICE[cls]}</span>
+        ${cls === "BENIGN" ? "" : `<span class="pct">${pct(p.confidence, 0)}<small>confidence</small></span>`}</div>
+      <div class="tuple">${esc(f.src_ip)}:${f.src_port} to ${esc(f.dst_ip)}:${f.dst_port} ${esc(f.protocol)}</div>${truth}${note}
     </div>`;
-  if (cls === "BENIGN") {
-    html += `<div class="block"><p>The model considers this flow normal traffic.</p></div>`;
-  }
   if (ex.evidence && ex.evidence.length) {
-    html += `<div class="block"><h3>Why it was flagged</h3>${ex.evidence.map((e) => `<div class="ev"><b>${esc(e.title)}</b><span>${withAddr(e.text).replace(/class="addr"/g, 'class="mono"')}</span></div>`).join("")}</div>`;
+    html += `<div class="block"><h3>${cls === "BENIGN" ? "Network context" : "Why it was flagged"}</h3>${ex.evidence.map((e) => `<div class="ev"><b>${esc(e.title)}</b><span>${withAddr(e.text).replace(/class="addr"/g, 'class="mono"')}</span></div>`).join("")}</div>`;
   }
   const methods = Object.keys(ex.features || {});
   const method = S.attrMethod && methods.includes(S.attrMethod) ? S.attrMethod : methods[0];
@@ -627,7 +697,7 @@ function renderExplain(side) {
       <div class="seg" id="attrSeg">${methods.map((m) => `<button data-m="${esc(m)}" class="${m === method ? "on" : ""}">${esc(m)}</button>`).join("")}
       ${methods.includes("SHAP") ? "" : `<button id="shapBtn">${waitingShap ? "Computing SHAP" : "Add SHAP"}</button>`}</div>
       <div id="attrChart"></div>
-      <div class="caption">Bars in the attack colour push towards ${NICE[cls]}, grey bars push away. ${ex.timings_ms && ex.timings_ms[method] ? `Computed in ${Math.round(ex.timings_ms[method])} ms.` : ""}</div></div>`;
+      <div class="caption">Bars in colour push towards ${raw === "BENIGN" ? "normal traffic" : `${NICE[raw]}${gated ? " (the model's unconfirmed guess)" : ""}`}, grey bars push away. ${ex.timings_ms && ex.timings_ms[method] ? `Computed in ${Math.round(ex.timings_ms[method])} ms.` : ""}</div></div>`;
   }
   const st = ex.structure;
   if (st && st.neighbour_flows) {
@@ -640,7 +710,7 @@ function renderExplain(side) {
       <div class="caption">${esc(st.method)}</div></div>`;
   }
   const cf = ex.counterfactual_features, scf = ex.counterfactual_structure;
-  if (cf || scf) {
+  if ((cf || scf) && cls !== "BENIGN") {
     let items = "";
     if (cf && cf.found && cf.text) items += `<div class="cf">It would be classified benign if its ${esc(cf.text)}.</div>`;
     else if (cf) items += `<div class="cf">No realistic change to this flow's own properties makes it benign; the decision rests on its context.</div>`;
@@ -653,7 +723,7 @@ function renderExplain(side) {
   }
   side.innerHTML = html;
   bindBack();
-  if (method) attrChart(ex.features[method], cls);
+  if (method) attrChart(ex.features[method], raw);
   side.querySelectorAll("#attrSeg [data-m]").forEach((b) => b.addEventListener("click", () => { S.attrMethod = b.dataset.m; renderSide(); }));
   const shapBtn = $("#shapBtn");
   if (shapBtn) shapBtn.addEventListener("click", () => {
@@ -665,14 +735,6 @@ function renderExplain(side) {
   });
   const dl = $("#dlReport");
   if (dl) dl.addEventListener("click", () => download(`case_${f.src_ip}_${f.dst_ip}.md`, caseFile(ex)));
-}
-
-function lowConf(conf) {
-  const tau = S.data.meta.uncertainty_threshold;
-  if (tau == null || conf >= tau) return "";
-  const d = S.data.meta.drift;
-  return `<div class="lowconf">Low confidence: on familiar traffic the model is at least ${pct(tau, 0)} sure. Treat this verdict as
-    uncertain${d != null && d >= 0.25 ? ", especially since this network differs from the training network" : ""}.</div>`;
 }
 
 function bindBack() {
@@ -703,7 +765,7 @@ function attrChart(feats, cls) {
     t.append("tspan").attr("class", "val").text(` = ${d.value}`);
     const w = sx(Math.abs(d.attribution));
     svg.append("rect").attr("x", d.attribution >= 0 ? mid : mid - w).attr("y", y + 18).attr("width", Math.max(1, w)).attr("height", 9)
-      .attr("rx", 2).attr("fill", d.attribution >= 0 ? COLOR[cls] : "#B4BEC6");
+      .attr("rx", 2).attr("fill", d.attribution >= 0 ? (cls === "BENIGN" ? "#0F1720" : COLOR[cls]) : "#B4BEC6");
   });
 }
 
@@ -736,6 +798,17 @@ function syncSheet() {
     c.classList.toggle("on");
   }));
   document.querySelectorAll("#lengthSeg button").forEach((b) => b.classList.toggle("on", +b.dataset.min === sc.minutes));
+  const cap = S.data && S.data.meta.capture;
+  const hint = $("#liveHint");
+  $("#liveControls").hidden = !(cap && cap.available) || isLive();
+  if (!cap) hint.textContent = "Live capture status is unavailable.";
+  else if (isLive()) hint.textContent = `Capturing on ${S.data.meta.live.iface}. Stop it from the bar at the top.`;
+  else if (!cap.available) hint.textContent = cap.reason;
+  else {
+    hint.textContent = "Captures this computer's traffic and updates the map every 20 seconds. Only metadata is read (addresses, ports, sizes, timing), never content.";
+    $("#ifaceSelect").innerHTML = cap.interfaces.map((i) => `<option value="${esc(i.name)}" ${i.name === cap.default ? "selected" : ""}>${esc(i.description || i.name)}${i.ip ? ` (${esc(i.ip)})` : ""}</option>`).join("")
+      || `<option value="">Default interface</option>`;
+  }
   $("#intensity").value = sc.intensity;
   $("#intensityVal").textContent = `${(+sc.intensity).toFixed(1)}x`;
 }

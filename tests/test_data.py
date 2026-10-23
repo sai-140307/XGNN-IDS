@@ -189,3 +189,50 @@ def test_console_payload_is_compact_and_serialisable(flows):
         assert all(0 <= s < n and 0 <= t < n for s, t, *_ in g["links"])
     assert payload["incidents"] and all(0 <= i["w0"] <= i["w1"] < len(graphs) for i in payload["incidents"])
     assert payload["truth"]["detection_rate"] == 1.0
+
+
+def test_home_profile_has_realistic_benign_mix():
+    df = generate_traffic("home", 300, seed=2, episodes_per_attack=1)
+    kinds = set(df.loc[df["label"] == "BENIGN", "attack_detail"])
+    assert {"home-browsing", "home-dns", "home-quic", "home-discovery", "home-telemetry"} <= kinds
+    # page loads make one laptop fan out to many destinations within a window
+    w = df[(df["ts"] < 20) & (df["attack_detail"] == "home-browsing")]
+    assert w.groupby("src_ip")["dst_ip"].nunique().max() >= 5
+
+
+def test_flowmeter_orients_mid_connection_flows_client_to_server():
+    m = FlowMeter()
+    m.add(Packet(0.0, "142.250.9.9", "192.168.1.10", 443, 51111, 6, 1400, ACK))   # server reply seen first
+    m.add(Packet(0.1, "192.168.1.10", "142.250.9.9", 51111, 443, 6, 60, ACK))
+    (row,) = m.flush()
+    assert (row["src_ip"], row["dst_port"], row["fwd_pkts"], row["bwd_pkts"]) == ("192.168.1.10", 443, 1, 1)
+
+
+def test_live_session_assembles_and_slides():
+    from xgnn_ids.capture.live_session import LiveSession
+
+    s = LiveSession(window_s=20, keep_windows=3)
+    t0 = s.t0
+    for k in range(4):
+        s.feed(Packet(t0 + 1 + k * 0.01, "192.168.1.10", "142.250.1.1", 50000, 443, 6, 100, ACK))
+    df = s.collect(now=t0 + 30)
+    assert len(df) == 1 and df["segment"].iloc[0] == "live" and df["label"].iloc[0] == "UNKNOWN"
+    s.feed(Packet(t0 + 75, "192.168.1.11", "8.8.8.8", 40000, 53, 17, 70))
+    df = s.collect(now=t0 + 100)
+    assert s.origin(t0 + 100) == 60.0
+    assert len(df) == 1 and df["ts"].min() >= 60.0          # the old flow slid out of the kept windows
+    graphs = build_graphs(df, GraphConfig(window_s=20), origin=s.origin(t0 + 100))
+    assert graphs[0].t0 == 60.0
+
+
+def test_low_confidence_predictions_are_not_alerts():
+    import sys
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
+    from payload import effective_labels
+
+    df = pd.DataFrame({"pred_label": ["Botnet", "DDoS", "BENIGN"], "confidence": [0.53, 0.99, 0.7]})
+    eff = effective_labels(SimpleNamespace(df=df), 0.9)
+    assert list(eff) == ["BENIGN", "DDoS", "BENIGN"]

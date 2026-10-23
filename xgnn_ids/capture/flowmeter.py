@@ -13,6 +13,12 @@ from dataclasses import dataclass, field
 import pandas as pd
 
 FIN, SYN, RST, PSH, ACK = 0x01, 0x02, 0x04, 0x08, 0x10
+SERVICE_PORTS = {20, 21, 22, 23, 25, 53, 67, 68, 80, 110, 123, 137, 138, 139, 143, 161, 389, 443, 445, 465, 587, 993, 995,
+                 1883, 1900, 3306, 3389, 5353, 5355, 5432, 8080, 8443}
+
+
+def _is_service(port: int) -> bool:
+    return port in SERVICE_PORTS or port < 1024
 
 
 @dataclass
@@ -76,6 +82,10 @@ class FlowMeter:
             f = None
             fwd = True
         if f is None:
+            # A capture can start mid-connection: if this first packet comes *from* a service port to an
+            # ephemeral port, it is the server's reply, so orient the flow client -> server.
+            if _is_service(p.sport) and not _is_service(p.dport) and not (p.flags & SYN and not p.flags & ACK):
+                key, fwd = rkey, False
             f = _Flow(key=key, first=p.ts, last=p.ts)
             self.flows[key] = f
         f.gap_sum += max(p.ts - f.last, 0.0)

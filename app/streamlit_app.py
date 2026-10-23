@@ -32,11 +32,13 @@ from payload import build_payload, eval_payload, explanation_payload  # noqa: E4
 from xgnn_ids.config import ATTACK_CLASSES  # noqa: E402
 from xgnn_ids.data.loaders import normalise  # noqa: E402
 from xgnn_ids.data.synthetic import ATTACKS, generate_traffic, inject_attack  # noqa: E402
+from xgnn_ids.capture.live_session import LiveSession, capture_status  # noqa: E402
 from xgnn_ids.inference import Detector  # noqa: E402
 
 MODELS_DIR = Path(os.environ.get("XGNN_MODELS_DIR", ROOT / "models"))
 RESULTS = Path(os.environ.get("XGNN_RESULTS_DIR", ROOT / "results")) / "metrics.json"
-MIN_CONF = 0.5
+MIN_CONF = 0.9            # alert threshold: lower-confidence guesses are shown as "no attack"
+ON_CLOUD = Path.cwd().as_posix().startswith("/mount/src") or os.environ.get("STREAMLIT_SHARING_MODE") is not None
 MAX_UPLOAD_ROWS = 300_000
 DEFAULT_SCENARIO = {"profile": "enterprise", "minutes": 10, "attacks": ["DDoS", "PortScan", "Botnet", "BruteForce"],
                     "intensity": 1.0, "seed": 42}
@@ -82,6 +84,21 @@ def evaluation(mtime: float) -> dict | None:
     if not RESULTS.exists():
         return None
     return eval_payload(json.loads(RESULTS.read_text()), NAMES)
+
+
+@st.cache_resource(show_spinner=False)
+def capture_info() -> dict:
+    if ON_CLOUD:
+        return {"available": False, "interfaces": [], "default": None,
+                "reason": "This copy runs on a cloud server, so it cannot see your network. Run the console on your own "
+                          "computer to capture live traffic (see the README: live capture)."}
+    return capture_status()
+
+
+@st.cache_resource(show_spinner=False)
+def live_registry() -> dict:
+    """One capture per server process, shared by reruns."""
+    return {"session": None}
 
 
 def parse_upload(name: str, b64: str) -> pd.DataFrame:
@@ -130,6 +147,8 @@ ss.setdefault("last_nonce", None)
 ss.setdefault("error", None)
 
 # ------------------------------------------------------------------ handle the console's last request
+reg = live_registry()
+action = None
 ev = ss.get("console")
 if isinstance(ev, dict) and ev.get("nonce") and ev["nonce"] != ss.last_nonce:
     ss.last_nonce = ev["nonce"]
@@ -138,7 +157,7 @@ if isinstance(ev, dict) and ev.get("nonce") and ev["nonce"] != ss.last_nonce:
     try:
         if action == "simulate":
             attacks = [a for a in ev.get("attacks", []) if a in ATTACK_CLASSES]
-            ss.scenario = {"profile": ev.get("profile") if ev.get("profile") in ("enterprise", "iot") else "enterprise",
+            ss.scenario = {"profile": ev.get("profile") if ev.get("profile") in ("enterprise", "iot", "home") else "enterprise",
                            "minutes": int(min(max(int(ev.get("minutes", 10)), 3), 30)), "attacks": attacks,
                            "intensity": float(min(max(float(ev.get("intensity", 1.0)), 0.3), 2.0)),
                            "seed": int(ev.get("seed", 42)) % 100000}
@@ -156,29 +175,59 @@ if isinstance(ev, dict) and ev.get("nonce") and ev["nonce"] != ss.last_nonce:
                 ss.explain_req = None
         elif action == "explain":
             ss.explain_req = {"row": int(ev["row"]), "shap": bool(ev.get("shap"))}
+        elif action == "live_start":
+            cap = capture_info()
+            if not cap["available"]:
+                raise RuntimeError(cap["reason"])
+            if reg["session"] is not None:
+                reg["session"].stop()
+            sess = LiveSession(iface=ev.get("iface") or None, window_s=float(art["graph_config"]["window_s"]))
+            sess.start()
+            reg["session"] = sess
+            ss.source = "live"
+            ss.explain_req = None
+        elif action == "live_stop":
+            if reg["session"] is not None:
+                reg["session"].stop()
+            reg["session"] = None
+            ss.source = "sim"
+            ss.explain_req = None
     except Exception as exc:  # shown inside the console
         ss.error = f"Could not complete that request: {exc}"
 
 # ------------------------------------------------------------------ detection (cached per model + data)
 det = load_detector(ss.model)
-if ss.source == "upload" and "upload_df" in ss:
+sess = reg["session"]
+origin = None
+meta_key = None
+if ss.source == "live" and (sess is None or not sess.running):
+    ss.source = "sim"
+if ss.source == "live":
+    if action in ("live_start", "live_poll") or ss.get("live_id") != sess.id:
+        ss.live_df, ss.live_origin, ss.live_id, ss.live_polls = sess.collect(), sess.origin(), sess.id, sess.polls
+        ss.explain_req = None if action == "live_poll" else ss.explain_req
+    data_key = ("live", sess.id, ss.live_polls)
+    source_meta = {"source": "Live capture", "scenario": None,
+                   "live": {**sess.info(), "running": True, "polls": ss.live_polls}}
+    df_in, origin, meta_key = ss.live_df, ss.live_origin, f"live-{sess.id}"
+elif ss.source == "upload" and "upload_df" in ss:
     data_key = ("upload", ss.upload_id)
     source_meta = {"source": ss.upload_name, "scenario": None}
     df_in = ss.upload_df
 else:
     sc = ss.scenario
     data_key = ("sim", sc["profile"], sc["minutes"], tuple(sc["attacks"]), sc["intensity"], sc["seed"])
-    source_meta = {"source": "Simulated " + ("IoT network" if sc["profile"] == "iot" else "enterprise LAN"),
+    source_meta = {"source": "Simulated " + {"iot": "IoT network", "home": "home Wi-Fi"}.get(sc["profile"], "enterprise LAN"),
                    "scenario": sc, "profile": sc["profile"]}
     df_in = simulate(sc["profile"], sc["minutes"], tuple(sc["attacks"]), sc["intensity"], sc["seed"])
 
 full_key = (ss.model, data_key)
 if ss.get("base_key") != full_key:
-    res = det.detect(df_in)
+    res = det.detect(df_in, origin=origin)
     meta = {"model": det.display_name, "model_name": det.name, "window_s": det.graph_cfg.window_s,
             "uncertainty_threshold": float(det.threshold),
             "models": [{"name": k, "display": v["display"]} for k, v in art["models"].items()],
-            "key": hashlib.sha1(repr(full_key).encode()).hexdigest()[:16], **source_meta}
+            "key": meta_key or hashlib.sha1(repr(full_key).encode()).hexdigest()[:16], **source_meta}
     ss.res = res
     ss.base_payload = build_payload(res, det.incidents(res, MIN_CONF), MIN_CONF, meta)
     # drift over the whole capture: all flows the model considers benign, compared with training benign traffic
@@ -205,6 +254,9 @@ if req is not None:
             ss.error = f"Could not explain that flow: {exc}"
     explanation = ss.explanations.get(ck)
 
+if ss.source == "live" and sess is not None:
+    ss.base_payload["meta"]["live"] = {**sess.info(), "running": True, "polls": ss.live_polls}
+ss.base_payload["meta"]["capture"] = capture_info()
 payload = {**ss.base_payload, "explanation": explanation, "nonce": ss.last_nonce, "error": ss.error,
            "eval": evaluation(RESULTS.stat().st_mtime if RESULTS.exists() else 0.0)}
 console(payload=payload, key="console", default=None)

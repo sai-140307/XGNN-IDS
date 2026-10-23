@@ -62,3 +62,16 @@ def test_dashboard_renders(trained):
     at.run()
     assert not at.exception, [e.message for e in at.exception]
     assert at.session_state["scenario"]["profile"] == "iot"
+
+    # live capture without packet-capture rights fails gracefully with an explanation
+    at.session_state["console"] = {"action": "live_start", "iface": None, "nonce": "t3"}
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    capture = at.session_state["base_payload"]["meta"]["capture"]
+    if not capture["available"]:
+        assert at.session_state["error"] and capture["reason"]
+    else:                                            # running as root: the capture really starts
+        assert at.session_state["source"] == "live"
+        at.session_state["console"] = {"action": "live_stop", "nonce": "t4"}
+        at.run()
+        assert at.session_state["source"] == "sim"

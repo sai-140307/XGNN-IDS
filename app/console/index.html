@@ -24,6 +24,8 @@
     </nav>
     <div class="spacer"></div>
     <div class="scenario-line" id="scenarioLine"></div>
+    <div class="livebadge" id="liveBadge" hidden><span class="pulse"></span><span id="liveText">Live</span>
+      <button class="btn ghost" id="stopLive">Stop</button></div>
     <button class="btn ghost" id="openScenario">Change scenario</button>
     <label class="select" title="Detection model">
       <span class="sr">Detection model</span>
@@ -71,6 +73,7 @@
       <div class="label">Network</div>
       <div class="radios" id="profileRadios">
         <label><input type="radio" name="profile" value="enterprise" checked><span><b>Enterprise LAN</b><small>80 workstations and 7 servers; the network the model was trained on</small></span></label>
+        <label><input type="radio" name="profile" value="home"><span><b>Home Wi-Fi</b><small>Laptops, phones, a TV and a NAS behind one router; also in the training data</small></span></label>
         <label><input type="radio" name="profile" value="iot"><span><b>IoT network</b><small>150 sensors and cameras the model has never seen; watch the drift indicator</small></span></label>
       </div>
     </div>
@@ -91,6 +94,15 @@
     <div class="sheet-actions">
       <button class="btn" id="runScenario">Run scenario</button>
       <button class="btn ghost" id="randomSeed" title="Same attacks, different traffic">New random traffic</button>
+    </div>
+    <div class="divider"></div>
+    <div class="field" id="liveField">
+      <div class="label">Live capture from this computer</div>
+      <p class="hint" id="liveHint">Checking whether this computer can capture packets...</p>
+      <div class="live-controls" id="liveControls" hidden>
+        <label class="select"><span class="sr">Network interface</span><select id="ifaceSelect"></select></label>
+        <button class="btn" id="startLive">Start live capture</button>
+      </div>
     </div>
     <div class="divider"></div>
     <div class="field">

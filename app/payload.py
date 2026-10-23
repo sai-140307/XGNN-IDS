@@ -71,13 +71,23 @@ def window_graph(res, gi: int, min_conf: float) -> dict:
     return {"nodes": nodes, "links": links, "hidden": int(g.num_nodes - len(keep_list))}
 
 
-def windows_summary(res) -> list[dict]:
+def effective_labels(res, min_conf: float) -> np.ndarray:
+    """Predictions below the alert threshold are not alerts: they count as benign everywhere in the console."""
+    pred = res.df["pred_label"].to_numpy(dtype=object)
+    conf = res.df["confidence"].to_numpy(float)
+    return np.where((pred != "BENIGN") & (conf < min_conf), "BENIGN", pred)
+
+
+def windows_summary(res, eff: np.ndarray) -> list[dict]:
     out = []
-    for _, r in res.windows.iterrows():
+    rows = {int(r["window"]): r for _, r in res.windows.iterrows()}
+    for gi, g in enumerate(res.graphs):
+        e = eff[g.flow_rows]
+        r = rows.get(gi, {})
         out.append({
-            "i": int(r["window"]), "t0": _f(r["t0"], 2), "t1": _f(r["t1"], 2), "flows": int(r["flows"]),
-            "hosts": int(r["hosts"]), "alerts": int(r["alerts"]), "latency": _f(r["latency_ms"], 2),
-            "drift": _f(r.get("drift_psi")), "counts": [int(r[c]) for c in CLASSES[1:]],
+            "i": gi, "t0": _f(g.t0, 2), "t1": _f(g.t1, 2), "flows": int(g.num_edges), "hosts": int(g.num_nodes),
+            "alerts": int((e != "BENIGN").sum()), "latency": _f(r.get("latency_ms"), 2), "drift": _f(r.get("drift_psi")),
+            "counts": [int((e == c).sum()) for c in CLASSES[1:]],
         })
     return out
 
@@ -110,10 +120,10 @@ def incidents_payload(incidents: list[dict], alerts: pd.DataFrame, windows: list
     return out
 
 
-def truth_payload(res) -> dict | None:
+def truth_payload(res, eff: np.ndarray) -> dict | None:
     from xgnn_ids.training.metrics import classification_metrics
 
-    df = res.df
+    df = res.df.assign(pred_label=eff)
     if df["label"].isin(CLASSES).mean() < 0.95:
         return None
     idx = {c: i for i, c in enumerate(CLASSES)}
@@ -198,18 +208,20 @@ def explanation_payload(exp: dict, row: int, with_shap: bool) -> dict:
 def build_payload(res, incidents: list[dict], min_conf: float, meta: dict, explanation: dict | None = None,
                   evaluation: dict | None = None, nonce=None, error: str | None = None) -> dict:
     alerts = res.df[(res.df["pred_label"] != "BENIGN") & (res.df["confidence"] >= min_conf)]
-    windows = windows_summary(res)
+    eff = effective_labels(res, min_conf)
+    windows = windows_summary(res, eff)
     payload = {
         "nonce": nonce,
-        "meta": {**meta, "classes": CLASSES, "flows": int(len(res.df)), "alerts": int(len(alerts)),
+        "meta": {**meta, "classes": CLASSES, "alert_threshold": min_conf, "flows": int(len(res.df)), "alerts": int(len(alerts)),
                  "hosts": int(pd.concat([res.df["src_ip"], res.df["dst_ip"]]).nunique()),
-                 "duration": _f(res.df["ts"].max() - res.df["ts"].min(), 1) if len(res.df) else 0,
+                 "duration": _f(max([g.t1 for g in res.graphs]) - min([g.t0 for g in res.graphs]), 1) if res.graphs else 0,
+                 "t_start": _f(min([g.t0 for g in res.graphs]), 1) if res.graphs else 0,
                  "latency": _f(res.windows["latency_ms"].mean(), 2) if len(res.windows) else None,
                  "drift": _f(res.windows["drift_psi"].median()) if "drift_psi" in res.windows else None},
         "windows": windows,
         "graphs": [window_graph(res, gi, min_conf) for gi in range(len(res.graphs))],
         "incidents": incidents_payload(incidents, alerts, windows),
-        "truth": truth_payload(res),
+        "truth": truth_payload(res, eff),
         "explanation": explanation,
         "eval": evaluation,
         "error": error,

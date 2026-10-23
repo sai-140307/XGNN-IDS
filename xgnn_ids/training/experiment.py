@@ -65,8 +65,13 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
     # ---------------------------------------------------------------- data
     log("[1/8] loading data")
     if synthetic:
-        df = generate_traffic("enterprise", duration_s=duration_s or (900 if quick else 1800), seed=0)
-        source = "synthetic enterprise network (seed 0)"
+        d = duration_s or (900 if quick else 1800)
+        import pandas as pd
+
+        df = pd.concat([generate_traffic("enterprise", duration_s=d, seed=0),
+                        generate_traffic("home", duration_s=max(d * 2 // 3, 240), seed=1, episodes_per_attack=3)],
+                       ignore_index=True)
+        source = "synthetic enterprise LAN (seed 0) + home Wi-Fi network (seed 1)"
     else:
         df = load_flows(data_paths, max_rows=max_rows)
         source = ", ".join(Path(p).name for p in data_paths)
