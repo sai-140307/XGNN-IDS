@@ -20,7 +20,23 @@ Two ways to demo the system in front of an evaluator.
 7. **How well it works**: graph vs no graph, adversarial robustness, zero-day, the unseen network and the
    explanation-quality benchmark (including where GNNExplainer fell short).
 
-## B. Real packets on an isolated lab network
+## B. Live capture of the demo laptop's own traffic
+
+1. Before the demo: on Windows install Npcap (tick *WinPcap API-compatible mode*); open the terminal as
+   Administrator. On Linux/macOS use `sudo`.
+2. Start the console locally: `streamlit run app/streamlit_app.py` (Windows, admin terminal) or
+   `sudo .venv/bin/streamlit run app/streamlit_app.py`.
+3. **Change scenario** → *Live capture from this computer* → choose the Wi-Fi adapter → **Start live capture**.
+4. Open a few websites. After about 20 seconds the first graph appears: your laptop inside the perimeter, the
+   sites and CDNs you contacted outside. The bar at the top counts down to the next update.
+5. Point out that normal browsing produces **No attack detected**. Click any line to show the case file
+   explaining why it is normal traffic.
+6. Click **Stop** to return to the simulator.
+
+Only packet metadata is read, never content. Do not run attack tools on the college network; for attack
+traffic use the isolated lab setup below.
+
+## C. Real attack packets on an isolated lab network
 
 > Only generate attack traffic against machines you own, on an isolated network (VirtualBox/VMware
 > host-only network or a lab switch). Never against college or public infrastructure.

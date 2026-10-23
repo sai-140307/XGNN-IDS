@@ -86,6 +86,9 @@ hosts converging on one server, a botnet as several inside machines reaching out
   loads your own CICFlowMeter / NetFlow CSV or pcap.
 - **How well it works** and **How it works** are designed report pages built from the latest training run.
 
+- **Live capture**: run the console on your own computer, press *Start live capture*, and the map shows your
+  real connections, updated every 20 seconds (see below).
+
 | Incident view | Case file |
 |---|---|
 | ![incident](docs/screenshots/console-incident.png) | ![explanation](docs/screenshots/console-explanation.png) |
@@ -119,6 +122,19 @@ pip install -r requirements.txt
 
 streamlit run app/streamlit_app.py      # analyst console (trained models are included in models/)
 ```
+
+### Live capture of your own traffic
+
+The console can capture your computer's real traffic and update the map every 20 seconds. It only reads
+packet metadata (addresses, ports, sizes, timing), never content. Capturing packets needs administrator rights:
+
+- **Windows:** install [Npcap](https://npcap.com) (tick *WinPcap API-compatible mode*), open the terminal with
+  *Run as administrator*, then `.venv\Scripts\activate` and `streamlit run app/streamlit_app.py`.
+- **Linux / macOS:** `sudo .venv/bin/streamlit run app/streamlit_app.py`
+
+Then **Change scenario** → *Live capture from this computer* → pick your Wi-Fi or Ethernet adapter → **Start live
+capture**, and browse a few websites. The hosted Streamlit link cannot do this: it runs on a cloud server that
+cannot see your network.
 
 Command line:
 
