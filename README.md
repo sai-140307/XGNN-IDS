@@ -14,6 +14,8 @@ have had to change for it to look benign, and a suggested response.
 *BCSE308P Computer Networks project, Vellore Institute of Technology - guided by Dr. Aaseegha M D (SCORE).
 Team: Sai Chandra Reddy (24BYB0011), N Rishi Pranav (24BYB0082).*
 
+![The XGNN-IDS console: a DDoS replayed on the perimeter map](docs/screenshots/console-map.png)
+
 <!-- RESULTS_START -->
 ## Results at a glance
 
@@ -66,7 +68,27 @@ the same pipeline trains on real datasets (see [docs/DATASETS.md](docs/DATASETS.
 | From alerts to action | **Incident correlation** (thousands of alerts → a few incidents), **MITRE ATT&CK** mapping, suggested **iptables / nftables** rules |
 | Robustness | **Zero-day** leave-one-attack-out test, **adversarial** evasion (white-box PGD), **cross-domain** test on an unseen IoT network with **few-shot adaptation**, **concept-drift** monitor (PSI) |
 | Data sources | Built-in realistic traffic generator, CIC-IDS2017 / CSE-CIC-IDS2018 / CICDDoS2019, NF-* NetFlow datasets, pcap files, **live capture** |
-| Interfaces | Streamlit analyst console with an **attack simulator** and live replay, REST API (FastAPI), command line, Docker |
+| Interfaces | Custom analyst console (perimeter map, replay, incident case files, attack simulator, capture upload), REST API (FastAPI), command line, live sensor, Docker |
+
+## The console
+
+The interface is built around one idea: show the network, not tables about it. Internal hosts sit inside a
+drawn perimeter, the internet sits on the outer ring, and every flow is a line between them, coloured only if
+it is an attack. You replay a capture window by window like a recording; a DDoS shows as hundreds of outside
+hosts converging on one server, a botnet as several inside machines reaching out to one rare address.
+
+- **Incidents** on the right group thousands of alerts into a few campaigns, each with a MITRE ATT&CK
+  technique, a response recommendation and firewall rules you can download.
+- **Case files** explain any flow you click: plain-language network evidence, which properties of the flow
+  and its two hosts mattered, which neighbouring flows carried the evidence (highlighted on the map), and
+  what would have had to change for it to look benign.
+- **Change scenario** injects any mix of the seven attack families into an enterprise or IoT network, or
+  loads your own CICFlowMeter / NetFlow CSV or pcap.
+- **How well it works** and **How it works** are designed report pages built from the latest training run.
+
+| Incident view | Case file |
+|---|---|
+| ![incident](docs/screenshots/console-incident.png) | ![explanation](docs/screenshots/console-explanation.png) |
 
 ## Architecture
 

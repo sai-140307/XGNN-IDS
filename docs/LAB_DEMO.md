@@ -4,17 +4,21 @@ Two ways to demo the system in front of an evaluator.
 
 ## A. No network setup (recommended for the viva)
 
-1. Open the dashboard (deployed link, or `streamlit run app/streamlit_app.py`).
-2. Sidebar → *Attack simulator*. Pick e.g. DDoS + PortScan + Botnet + BruteForce.
-3. **Monitor** tab: show the alert timeline, then move the window slider to the DDoS window - the graph
-   shows hundreds of sources converging on one server.
-4. Open *Replay this capture as a live feed* and press *Start replay* to show detection window by window.
-5. **Investigate an alert**: select a DDoS row, then a Botnet row. Walk through the narrative, the network
-   evidence, the feature attribution and the GNNExplainer subgraph. Toggle SHAP to compare with IG.
-6. Switch the network to *IoT network (never seen in training)* - the drift KPI turns orange/red: the
-   system tells you when it is outside its comfort zone.
-7. **Detection scorecard**: precision/recall per attack and time-to-first-detection.
-8. **Model evaluation**: GNN vs Random Forest, zero-day and adversarial results.
+1. Open the console (deployed link, or `streamlit run app/streamlit_app.py`). It opens on the busiest attack
+   window of a 10-minute enterprise capture with a DDoS, a port scan, a botnet and SSH brute force.
+2. Point at the map: internal hosts inside the dashed perimeter, the internet on the outer ring, attacks in
+   colour. The headline names what is happening in this window.
+3. Press play (or the space bar). The capture replays window by window; the coloured tracks above the
+   timeline are the incidents.
+4. Click the **Botnet** incident: the map dims everything except the internal machines calling one
+   address outside. Show the response text and the firewall rules.
+5. Under "Flows to investigate", open a flow. Walk through the case file: network evidence, what the model
+   looked at (flow features and host statistics), the neighbouring flows highlighted on the map, and what
+   would change the decision. Add SHAP to compare with Integrated Gradients.
+6. **Change scenario** → *IoT network* → run. The sensor block shows the drift indicator rising: the system
+   tells you it is outside its training conditions.
+7. **How well it works**: graph vs no graph, adversarial robustness, zero-day, the unseen network and the
+   explanation-quality benchmark (including where GNNExplainer fell short).
 
 ## B. Real packets on an isolated lab network
 
@@ -46,7 +50,7 @@ Stop each attack with Ctrl+C after ~30 s. The sensor prints incidents such as
 ```
 
 and appends them to `live_alerts.jsonl`. You can also record a pcap with
-`sudo tcpdump -i enp0s8 -w demo.pcap` and upload it in the dashboard (*Upload packet capture*).
+`sudo tcpdump -i enp0s8 -w demo.pcap` and load it in the console (*Change scenario* → *Choose a file*).
 
 **Expectation management:** the shipped model is trained on the synthetic enterprise network. On a new
 network the absolute numbers will differ (the drift monitor will show it); scans, floods and brute force
