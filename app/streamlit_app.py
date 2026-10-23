@@ -176,10 +176,19 @@ full_key = (ss.model, data_key)
 if ss.get("base_key") != full_key:
     res = det.detect(df_in)
     meta = {"model": det.display_name, "model_name": det.name, "window_s": det.graph_cfg.window_s,
+            "uncertainty_threshold": float(det.threshold),
             "models": [{"name": k, "display": v["display"]} for k, v in art["models"].items()],
             "key": hashlib.sha1(repr(full_key).encode()).hexdigest()[:16], **source_meta}
     ss.res = res
     ss.base_payload = build_payload(res, det.incidents(res, MIN_CONF), MIN_CONF, meta)
+    # drift over the whole capture: all flows the model considers benign, compared with training benign traffic
+    if det.drift is not None:
+        import numpy as np
+
+        benign = [g.edge_attr[res.df["pred_label"].to_numpy()[g.flow_rows] == "BENIGN"] for g in res.graphs]
+        benign = np.vstack(benign) if benign else np.zeros((0, 1))
+        if len(benign) >= 200:
+            ss.base_payload["meta"]["drift"] = round(float(det.drift.psi(benign)[0]), 4)
     ss.base_key = full_key
     ss.explanations = {}
 
