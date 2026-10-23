@@ -2,32 +2,32 @@
 
 Data: **synthetic enterprise network (seed 0)** - 63,476 flows in 90 graph windows (20s each). Chronological split: train 38,404 / val 11,173 / test 13,899 flows.
 
-Environment: Python 3.11.17, PyTorch 2.14.1+cpu, CPU (2 threads). Total run time 6.5 min.
+Environment: Python 3.11.17, PyTorch 2.14.1+cpu, CPU (2 threads). Total run time 5.6 min.
 
 ## 1. Detection performance (test split)
 
 | Model | Accuracy | Macro-F1 | Weighted-F1 | DDoS F1 | FPR | Detection rate | Latency ms/window | Flows/s |
 |---|---|---|---|---|---|---|---|---|
-| Flow-MLP (no graph) | 0.8649 | 0.7537 | 0.8563 | 0.8395 | 0.0391 | 0.9119 | 0.2 | 4,238,364 |
-| GCN | 0.9969 | 0.9976 | 0.9969 | 0.9951 | 0.0012 | 0.9955 | 1.0 | 738,782 |
-| GAT (edge-attention) | 0.9968 | 0.9985 | 0.9968 | 0.9942 | 0.0019 | 0.9958 | 2.1 | 359,870 |
-| E-GraphSAGE (directed) **(default)** | 0.9956 | 0.9969 | 0.9956 | 0.9924 | 0.0012 | 0.9933 | 1.5 | 498,780 |
-| E-GraphSAGE (no node stats) | 0.9745 | 0.8593 | 0.9670 | 0.9880 | 0.0050 | 0.9991 | 1.6 | 473,650 |
-| Random Forest (flow features) | 0.9339 | 0.9385 | 0.9343 | 0.9001 | 0.0485 | 0.9702 | 25.7 | 30,092 |
-| Random Forest + graph statistics | 0.9953 | 0.9971 | 0.9953 | 0.9911 | 0.0003 | 0.9922 | 15.9 | 48,552 |
-| Gradient Boosting (flow features) | 0.9316 | 0.9377 | 0.9328 | 0.9005 | 0.0622 | 0.9791 | 7.1 | 109,342 |
+| Flow-MLP (no graph) | 0.8912 | 0.7967 | 0.8848 | 0.8554 | 0.0497 | 0.9467 | 0.2 | 3,907,288 |
+| GCN **(default)** | 0.9982 | 0.9991 | 0.9982 | 0.9969 | 0.0010 | 0.9976 | 1.1 | 712,653 |
+| GAT (edge-attention) | 0.9976 | 0.9986 | 0.9976 | 0.9959 | 0.0021 | 0.9973 | 2.2 | 356,998 |
+| E-GraphSAGE (directed) | 0.9961 | 0.9971 | 0.9961 | 0.9934 | 0.0012 | 0.9942 | 1.6 | 484,349 |
+| E-GraphSAGE (no node stats) | 0.9862 | 0.9513 | 0.9849 | 0.9915 | 0.0022 | 0.9920 | 1.6 | 485,809 |
+| Random Forest (flow features) | 0.9339 | 0.9385 | 0.9343 | 0.9001 | 0.0485 | 0.9702 | 27.2 | 28,417 |
+| Random Forest + graph statistics | 0.9953 | 0.9971 | 0.9953 | 0.9911 | 0.0003 | 0.9922 | 15.8 | 48,813 |
+| Gradient Boosting (flow features) | 0.9316 | 0.9377 | 0.9328 | 0.9005 | 0.0622 | 0.9791 | 7.2 | 107,877 |
 
-### Per-class results - E-GraphSAGE (directed)
+### Per-class results - GCN
 
 | Class | Precision | Recall | F1 | Support |
 |---|---|---|---|---|
-| BENIGN | 0.9908 | 0.9988 | 0.9948 | 5850 |
-| DDoS | 0.9994 | 0.9855 | 0.9924 | 3450 |
+| BENIGN | 0.9968 | 0.9990 | 0.9979 | 5850 |
+| DDoS | 0.9994 | 0.9945 | 0.9969 | 3450 |
 | DoS | 1.0000 | 1.0000 | 1.0000 | 1739 |
 | PortScan | 1.0000 | 1.0000 | 1.0000 | 1119 |
 | BruteForce | 1.0000 | 1.0000 | 1.0000 | 224 |
 | Botnet | 1.0000 | 1.0000 | 1.0000 | 165 |
-| WebAttack | 0.9957 | 0.9831 | 0.9894 | 237 |
+| WebAttack | 1.0000 | 1.0000 | 1.0000 | 237 |
 | Infiltration | 0.9964 | 1.0000 | 0.9982 | 1115 |
 
 ![per-class F1](per_class_f1.png)
@@ -40,28 +40,38 @@ Benign-traffic drift (PSI vs. training): in-domain test 0.006, IoT network 0.622
 
 | Model | In-domain macro-F1 | IoT macro-F1 | IoT DDoS F1 | IoT FPR | IoT detection rate |
 |---|---|---|---|---|---|
-| Flow-MLP (no graph) | 0.7537 | 0.5439 | 0.8631 | 0.7288 | 0.9353 |
-| GCN | 0.9976 | 0.6821 | 0.9882 | 0.7172 | 0.9981 |
-| GAT (edge-attention) | 0.9985 | 0.6874 | 0.9943 | 0.6677 | 0.9926 |
-| E-GraphSAGE (directed) | 0.9969 | 0.6855 | 0.9777 | 0.6606 | 0.9991 |
-| E-GraphSAGE (no node stats) | 0.8593 | 0.3372 | 0.1989 | 0.6800 | 0.8849 |
+| Flow-MLP (no graph) | 0.7967 | 0.5546 | 0.8646 | 0.7460 | 0.9594 |
+| GCN | 0.9991 | 0.6714 | 0.9962 | 0.7218 | 0.9983 |
+| GAT (edge-attention) | 0.9986 | 0.6908 | 0.9952 | 0.6716 | 0.9941 |
+| E-GraphSAGE (directed) | 0.9971 | 0.6897 | 0.9739 | 0.6606 | 0.9985 |
+| E-GraphSAGE (no node stats) | 0.9513 | 0.3447 | 0.2275 | 0.6773 | 0.8873 |
 | Random Forest (flow features) | 0.9385 | 0.7319 | 0.8869 | 0.5406 | 0.9772 |
 | Random Forest + graph statistics | 0.9971 | 0.8809 | 0.9836 | 0.0010 | 0.9421 |
 | Gradient Boosting (flow features) | 0.9377 | 0.7160 | 0.8887 | 0.6647 | 0.9798 |
 
+### Few-shot adaptation to the new network
+
+Fine-tuned on the first 7,762 IoT flows (12 windows, about 4 min of labelled traffic) plus a replay sample of the original training windows; evaluated on the last 28,063 IoT flows.
+
+| Model | IoT macro-F1 before | IoT FPR before | IoT macro-F1 after | IoT FPR after | Enterprise macro-F1 after |
+|---|---|---|---|---|---|
+| GCN | 0.6737 | 0.7186 | 0.8276 | 0.0011 | 0.9959 |
+| Flow-MLP (no graph) | 0.5404 | 0.7461 | 0.6476 | 0.1226 | 0.6929 |
+| Random Forest + graph statistics | 0.8470 | 0.0009 | 0.8941 | 0.0004 | 0.9981 |
+
 ## 3. Zero-day test (leave-one-attack-out)
 
-Model: E-GraphSAGE (directed). The hidden family is present in the training traffic but never labelled. *Detected* = classified as any attack or flagged as uncertain.
+Model: GCN. The hidden family is present in the training traffic but never labelled. *Detected* = classified as any attack or flagged as uncertain.
 
 | Unseen family | Test flows | Flagged as attack | Uncertain | Detected (either) | Most common label | Benign false alarms |
 |---|---|---|---|---|---|---|
-| DDoS | 3,450 | 0.000 | 0.757 | 0.757 | BENIGN | 0.010 |
-| DoS | 1,739 | 1.000 | 1.000 | 1.000 | WebAttack | 0.095 |
-| PortScan | 1,119 | 1.000 | 0.925 | 1.000 | Infiltration | 0.012 |
-| BruteForce | 224 | 0.871 | 1.000 | 1.000 | DoS | 0.017 |
-| Botnet | 165 | 0.000 | 0.000 | 0.000 | BENIGN | 0.016 |
-| WebAttack | 237 | 0.983 | 0.983 | 0.983 | DoS | 0.032 |
-| Infiltration | 1,115 | 0.944 | 0.787 | 0.998 | PortScan | 0.029 |
+| DDoS | 3,450 | 0.714 | 0.965 | 0.965 | DoS | 0.033 |
+| DoS | 1,739 | 1.000 | 1.000 | 1.000 | WebAttack | 0.137 |
+| PortScan | 1,119 | 1.000 | 1.000 | 1.000 | DDoS | 0.029 |
+| BruteForce | 224 | 1.000 | 1.000 | 1.000 | DoS | 0.034 |
+| Botnet | 165 | 0.000 | 0.000 | 0.000 | BENIGN | 0.034 |
+| WebAttack | 237 | 0.983 | 0.717 | 1.000 | DoS | 0.053 |
+| Infiltration | 1,115 | 0.691 | 0.985 | 0.985 | PortScan | 0.033 |
 
 ## 4. Adversarial robustness
 
@@ -69,33 +79,33 @@ White-box PGD (10 steps) on attacker-controllable features (timing, volume, pack
 
 | Model | ε=0.0 | ε=0.25 | ε=0.5 | ε=1.0 | ε=2.0 |
 |---|---|---|---|---|---|
-| Flow-MLP (no graph) | 0.912 | 0.829 | 0.742 | 0.592 | 0.463 |
-| GCN | 0.996 | 0.990 | 0.982 | 0.963 | 0.787 |
-| GAT (edge-attention) | 0.996 | 0.990 | 0.981 | 0.962 | 0.684 |
-| E-GraphSAGE (directed) | 0.993 | 0.985 | 0.977 | 0.928 | 0.671 |
+| Flow-MLP (no graph) | 0.947 | 0.881 | 0.789 | 0.622 | 0.454 |
+| GCN | 0.998 | 0.992 | 0.985 | 0.963 | 0.789 |
+| GAT (edge-attention) | 0.997 | 0.993 | 0.984 | 0.969 | 0.712 |
+| E-GraphSAGE (directed) | 0.994 | 0.986 | 0.978 | 0.939 | 0.683 |
 
 ![robustness](adversarial_robustness.png)
 
 ## 5. Explanation quality
 
-56 correctly detected attack flows, top-5 features. Fidelity+ (higher = the highlighted features are necessary), Fidelity- (lower = they are sufficient), sparsity (higher = more concise), stability (Jaccard of top-k under noise).
+56 correctly detected attack flows. Feature explainers rank the 5 most important items of the explanation space (27 flow features + 11 statistics of each endpoint host). Fidelity is measured in log-odds of the explained class: Fidelity+ = drop when the top items are reset to the training mean (higher = they are necessary), Fidelity- = drop when *only* they are kept (lower = they are sufficient). Flip rate = share of alerts whose class changes when the top items are reset. Sparsity = share of items not needed for 80% of the attribution mass. Stability = top-k overlap (Jaccard) under small input noise.
 
 ### Feature attribution
 
-| Method | Fidelity+ | Fidelity- | Sparsity | Stability | Runtime ms |
-|---|---|---|---|---|---|
-| Integrated Gradients | 0.0194 | -0.0030 | 0.689 | 0.856 | 81.6 |
-| SHAP | 0.0188 | -0.0025 | 0.805 | 0.747 | 1582.2 |
-| GNNExplainer (feature mask) | 0.0135 | 0.0026 | 0.325 | 0.911 | 512.8 |
-| Random | -0.0008 | 0.0198 | 0.464 | 0.112 | 0.0 |
+| Method | Fidelity+ (log-odds) | Fidelity- (log-odds) | Flip rate | Sparsity | Stability | Runtime ms |
+|---|---|---|---|---|---|---|
+| Integrated Gradients | 5.806 | 1.425 | 0.29 | 0.792 | 0.942 | 56.7 |
+| SHAP | 4.295 | 2.535 | 0.16 | 0.871 | 0.631 | 1231.5 |
+| GNNExplainer (feature mask) | 3.222 | 3.018 | 0.16 | 0.429 | 0.926 | 406.3 |
+| Random | 0.441 | 6.130 | 0.00 | 0.477 | 0.064 | 0.1 |
 
-### Structural explanation (which neighbouring flows matter, top-10 flows)
+### Structural explanation (top 20% of neighbouring flows removed / kept)
 
-| Method | Fidelity+ | Fidelity- | Sparsity | Stability | Runtime ms |
+| Method | Fidelity+ (log-odds) | Fidelity- (log-odds) | Sparsity | Stability | Runtime ms |
 |---|---|---|---|---|---|
-| GNNExplainer | -0.0000 | 0.1161 | 0.949 | 0.363 | 506.3 |
-| Same-destination heuristic | 0.0052 | 0.1125 | nan | nan | 0.0 |
-| Random | 0.0009 | 0.1143 | nan | nan | 0.0 |
+| GNNExplainer | 0.184 | 3.443 | 0.467 | 0.103 | 403.5 |
+| Same-destination heuristic | 2.351 | 1.539 | nan | nan | 0.0 |
+| Random | 0.215 | 2.912 | nan | nan | 0.0 |
 
 Example narratives: [example_explanations.md](example_explanations.md)
 
