@@ -84,6 +84,18 @@ def test_netflow_loader():
     assert r["label"] == "BruteForce" and r["syn"] == 1 and r["rst"] == 0 and r["duration"] == 1.5
 
 
+def test_canonical_csv_roundtrip(flows, tmp_path):
+    path = tmp_path / "flows.csv"
+    flows.to_csv(path, index=False)
+    from xgnn_ids.data.loaders import load_flows
+
+    back = load_flows(path)
+    assert detect_format(flows.columns) == "canonical"
+    assert len(back) == len(flows)
+    assert back["ts"].max() == pytest.approx(flows["ts"].max())
+    assert (back["label"] == flows["label"]).all()
+
+
 def test_machine_learning_csv_without_ips_is_rejected():
     with pytest.raises(ValueError, match="TrafficLabelling"):
         detect_format([" Destination Port", " Flow Duration", " Label"])
