@@ -344,13 +344,16 @@ with tab_inv:
                              column_config={"confidence": st.column_config.ProgressColumn(min_value=0, max_value=1, format="%.2f")})
         sel = event.selection.rows if event is not None and hasattr(event, "selection") else []
         row = int(view.index[sel[0]]) if sel else int(view.index[0])
-        use_shap = st.toggle("Also compute SHAP (slower, a few seconds)", value=False)
+        t1, t2 = st.columns(2)
+        use_shap = t1.toggle("Also compute SHAP (slower, a few seconds)", value=False)
+        use_gx = t2.toggle("Compare with GNNExplainer", value=False)
 
         cache = st.session_state.setdefault("explanations", {})
-        ck = (row, use_shap)
+        ck = (row, use_shap, use_gx)
         if ck not in cache:
-            with st.spinner("Explaining the prediction (Integrated Gradients, GNNExplainer, counterfactuals)..."):
-                methods = ("ig", "gnnexplainer", "counterfactual") + (("shap",) if use_shap else ())
+            with st.spinner("Explaining the prediction (attributions, neighbouring flows, counterfactuals)..."):
+                methods = (("ig", "edge_ig", "counterfactual") + (("shap",) if use_shap else ())
+                           + (("gnnexplainer",) if use_gx else ()))
                 cache[ck] = det.explain(res, row, methods)
         exp = cache[ck]
         p = exp["prediction"]
@@ -391,8 +394,13 @@ with tab_inv:
             st.caption("Coloured bars push towards the predicted attack, grey bars push away. "
                        + f"Computed in {exp['timings_ms'].get(method, 0):.0f} ms.")
         with c2:
-            st.markdown("**Which other flows mattered (GNNExplainer)**")
-            stc = exp.get("structure")
+            st.markdown("**Which neighbouring flows mattered**")
+            options = {k: exp[k] for k in ("structure", "structure_gnnexplainer") if exp.get(k)}
+            stc = None
+            if options:
+                choice = st.radio("Structural method", list(options), horizontal=True, label_visibility="collapsed",
+                                  format_func=lambda k: options[k]["method"])
+                stc = options[choice]
             if not stc:
                 st.info("This flow has no neighbouring flows in its window.")
             else:
@@ -421,9 +429,10 @@ with tab_inv:
                 fig.update_xaxes(visible=False)
                 fig.update_yaxes(visible=False)
                 st.plotly_chart(fig_layout(fig, 330, legend=False), width="stretch")
-                st.caption(f"Red: the explained flow. Blue: neighbouring flows, thicker = more important. "
-                           f"{stc['important_flows']} of {stc['neighbour_flows']} neighbours are important; "
-                           f"{stc['share_same_destination']:.0%} of the weight is on flows to the same destination.")
+                st.caption(f"Red: the explained flow. Blue: neighbouring flows, thicker = more important "
+                           f"({stc['method']}). {stc['important_flows']} of {stc['neighbour_flows']} neighbouring flows "
+                           f"carry 80% of the structural evidence; {stc['share_same_destination']:.0%} of it comes from "
+                           "flows to the same destination.")
 
         report = (f"# XGNN-IDS alert report\n\nModel: {det.display_name}\n\n{exp['narrative']}\n\n## Network evidence\n"
                   + "\n".join(f"- {e['text']}" for e in exp.get("evidence", []))
@@ -558,7 +567,7 @@ digraph G {
   fm [label="Flow meter\\n5-tuple flows"]; norm [label="Canonical schema\\n27 flow features"];
   gb [label="Temporal graph builder\\nhosts = nodes, flows = edges\\n20 s windows"];
   gnn [label="Edge-level GNN\\nE-GraphSAGE / GAT / GCN", fillcolor="#E8F0FC", color="#2F6FDE"];
-  xai [label="Explainers\\nIG, SHAP, GNNExplainer,\\ncounterfactuals, evidence", fillcolor="#E8F0FC", color="#2F6FDE"];
+  xai [label="Explainers\\nIG, SHAP, edge IG, GNNExplainer,\\ncounterfactuals, evidence", fillcolor="#E8F0FC", color="#2F6FDE"];
   inc [label="Incident correlation\\nMITRE ATT&CK, firewall rules"]; drift [label="Drift monitor\\n(PSI)"];
   ui [label="Analyst console / REST API"];
   cap -> fm -> norm; csv -> norm; norm -> gb -> gnn -> inc -> ui; gnn -> xai -> ui; gb -> drift -> ui;
@@ -576,7 +585,8 @@ response and firewall rules (for review, never applied automatically).
 **How an alert is explained.**
 - *Network evidence* - plain-language facts about the window, such as fan-in to the destination or beacon regularity.
 - *Feature attribution* - Integrated Gradients (fast, exact gradients) and SHAP (game-theoretic, slower).
-- *GNNExplainer* - which neighbouring flows the decision relied on.
+- *Edge Integrated Gradients* and *GNNExplainer* - which neighbouring flows the decision relied on (the
+  benchmark in the evaluation tab shows which of the two is more faithful).
 - *Counterfactuals* - the smallest change that would have made the flow benign.
 
 Explanation quality is measured (fidelity, sparsity, stability, runtime) rather than assumed.

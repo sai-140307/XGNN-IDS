@@ -128,7 +128,7 @@ class Detector:
         out["window"] = window_of
         return Detection(out, graphs, probs, window_of, edge_of, pd.DataFrame(rows))
 
-    def explain(self, det: Detection, row: int, methods=("ig", "gnnexplainer", "counterfactual"),
+    def explain(self, det: Detection, row: int, methods=("ig", "edge_ig", "counterfactual"),
                 shap_nsamples: int = 150) -> dict:
         gi, e = int(det.window_of[row]), int(det.edge_of[row])
         return explain_flow(self.model, self.prep, det.graphs[gi], det.df, e, self.hops, self.background,

@@ -221,7 +221,7 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
                 ok = np.flatnonzero((g.y == cid) & (pr.argmax(1) == cid))
                 if len(ok):
                     e = explain_flow(model, p, g, df, int(ok[len(ok) // 2]), hops, background,
-                                     methods=("ig", "gnnexplainer", "counterfactual"))
+                                     methods=("ig", "edge_ig", "counterfactual"))
                     examples.append(e)
                     break
         report["examples"] = [{k: v for k, v in e.items() if k != "structure"} for e in examples]
