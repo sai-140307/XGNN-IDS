@@ -1,0 +1,11 @@
+console.warning: Unrecognized feature: 'ambient-light-sensor'.
+console.warning: Unrecognized feature: 'battery'.
+console.warning: Unrecognized feature: 'document-domain'.
+console.warning: Unrecognized feature: 'layout-animations'.
+console.warning: Unrecognized feature: 'legacy-image-formats'.
+console.warning: Unrecognized feature: 'oversized-images'.
+console.warning: Unrecognized feature: 'vr'.
+console.warning: Unrecognized feature: 'wake-lock'.
+console.warning: An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+map: DDoS against 192.168.10.50 from 164 sources
+explanation: DDoS
