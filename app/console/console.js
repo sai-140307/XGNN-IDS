@@ -78,6 +78,7 @@ function onNewData() {
   S.panel = { mode: "list" };
   S.highlight = null;
   renderTop();
+  renderDrift();
   M.reset();
   drawWave();
   gotoWindow(S.win, true);
@@ -95,6 +96,19 @@ function onUpdate() {
     else M.applyHighlight();
   }
   renderSide();
+}
+
+/* ------------------------------------------------------------------ drift warning */
+function renderDrift() {
+  const d = S.data.meta.drift;
+  const el = $("#driftnote");
+  const high = d != null && d >= 0.25;
+  el.hidden = !high;
+  if (high) {
+    el.innerHTML = `<b>This traffic doesn't look like the training network</b>Drift score ${d.toFixed(2)} (above 0.25 means
+      unfamiliar traffic). Expect false alarms and low confidence; the model should be adapted with a few minutes of labelled
+      local traffic.`;
+  }
 }
 
 /* ------------------------------------------------------------------ top bar */
@@ -597,7 +611,7 @@ function renderExplain(side) {
   html += `<div class="block">
       <div class="verdict"><span class="swatch" style="background:${COLOR[cls]}"></span><span class="cls">${NICE[cls]}</span>
         <span class="pct">${pct(p.confidence, 0)}<small>confidence</small></span></div>
-      <div class="tuple">${esc(f.src_ip)}:${f.src_port} to ${esc(f.dst_ip)}:${f.dst_port} ${esc(f.protocol)}</div>${truth}
+      <div class="tuple">${esc(f.src_ip)}:${f.src_port} to ${esc(f.dst_ip)}:${f.dst_port} ${esc(f.protocol)}</div>${truth}${lowConf(p.confidence)}
     </div>`;
   if (cls === "BENIGN") {
     html += `<div class="block"><p>The model considers this flow normal traffic.</p></div>`;
@@ -651,6 +665,14 @@ function renderExplain(side) {
   });
   const dl = $("#dlReport");
   if (dl) dl.addEventListener("click", () => download(`case_${f.src_ip}_${f.dst_ip}.md`, caseFile(ex)));
+}
+
+function lowConf(conf) {
+  const tau = S.data.meta.uncertainty_threshold;
+  if (tau == null || conf >= tau) return "";
+  const d = S.data.meta.drift;
+  return `<div class="lowconf">Low confidence: on familiar traffic the model is at least ${pct(tau, 0)} sure. Treat this verdict as
+    uncertain${d != null && d >= 0.25 ? ", especially since this network differs from the training network" : ""}.</div>`;
 }
 
 function bindBack() {
