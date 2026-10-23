@@ -155,3 +155,37 @@ def test_drift_monitor_detects_new_network(flows):
     other = dm.psi(edge_feature_matrix(iot[iot["label"] == "BENIGN"]))[0]
     assert same < 0.1 < other
     assert DriftMonitor.from_dict(dm.to_dict()).psi(benign[:500])[0] == pytest.approx(dm.psi(benign[:500])[0])
+
+
+def test_console_payload_is_compact_and_serialisable(flows):
+    """The custom console's data contract, built from ground truth as stand-in predictions."""
+    import json
+    import sys
+    from pathlib import Path
+    from types import SimpleNamespace
+
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "app"))
+    from payload import MAX_ATTACK_NODES, MAX_INTERNAL, MAX_NODES, build_payload
+
+    df = flows.reset_index(drop=True).copy()
+    df["pred_label"], df["confidence"] = df["label"], 0.95
+    graphs = build_graphs(df)
+    rows = []
+    for gi, g in enumerate(graphs):
+        p = df["pred_label"].to_numpy()[g.flow_rows]
+        rec = {"window": gi, "t0": g.t0, "t1": g.t1, "flows": g.num_edges, "hosts": g.num_nodes,
+               "alerts": int((p != "BENIGN").sum()), "latency_ms": 1.0, "drift_psi": 0.01}
+        rec.update({c: int((p == c).sum()) for c in CLASSES[1:]})
+        rows.append(rec)
+    res = SimpleNamespace(df=df, graphs=graphs, windows=pd.DataFrame(rows))
+    alerts = df[df["pred_label"] != "BENIGN"]
+    payload = build_payload(res, correlate_incidents(alerts), 0.5, {"model": "test", "window_s": 20})
+    text = json.dumps(payload)
+    assert len(text) < 2_000_000
+    assert len(payload["graphs"]) == len(graphs) == len(payload["windows"])
+    for g in payload["graphs"]:
+        assert len(g["nodes"]) <= MAX_INTERNAL + MAX_NODES + MAX_ATTACK_NODES
+        n = len(g["nodes"])
+        assert all(0 <= s < n and 0 <= t < n for s, t, *_ in g["links"])
+    assert payload["incidents"] and all(0 <= i["w0"] <= i["w1"] < len(graphs) for i in payload["incidents"])
+    assert payload["truth"]["detection_rate"] == 1.0

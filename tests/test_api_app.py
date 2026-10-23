@@ -44,4 +44,21 @@ def test_dashboard_renders(trained):
     at = AppTest.from_file(str(app), default_timeout=300)
     at.run()
     assert not at.exception, [e.message for e in at.exception]
-    assert len(at.tabs) == 5
+    payload = at.session_state["base_payload"]
+    assert payload["windows"] and payload["graphs"] and payload["incidents"]
+
+    # the console asks for an explanation of the most confident alert -> the next run returns it
+    alerts = at.session_state["res"].alerts
+    row = int(alerts["confidence"].idxmax())
+    at.session_state["console"] = {"action": "explain", "row": row, "shap": False, "nonce": "t1"}
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    exp = at.session_state["explanations"]
+    assert any(k[1] == row for k in exp) and all("narrative" in v for v in exp.values())
+
+    # running a new scenario rebuilds the detection
+    at.session_state["console"] = {"action": "simulate", "profile": "iot", "minutes": 5, "attacks": ["DDoS"],
+                                   "intensity": 1.0, "seed": 3, "nonce": "t2"}
+    at.run()
+    assert not at.exception, [e.message for e in at.exception]
+    assert at.session_state["scenario"]["profile"] == "iot"

@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XGNN-IDS console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Martian+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="console.css">
+<script src="d3.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 2.4"/><circle cx="14" cy="14" r="3.2" fill="currentColor"/><circle cx="3.6" cy="9" r="1.9" fill="#E0352B"/><circle cx="24.6" cy="18.6" r="1.9" fill="currentColor"/><path d="M5.2 9.8 11.2 13" stroke="#E0352B" stroke-width="1.6"/><path d="M16.8 15.2 23 18" stroke="currentColor" stroke-width="1.2"/></svg></span>
+      <span class="word">XGNN-IDS</span>
+    </div>
+    <nav class="views" role="tablist">
+      <button data-view="map" class="on" role="tab">Live map</button>
+      <button data-view="eval" role="tab">How well it works</button>
+      <button data-view="method" role="tab">How it works</button>
+    </nav>
+    <div class="spacer"></div>
+    <div class="scenario-line" id="scenarioLine"></div>
+    <button class="btn ghost" id="openScenario">Change scenario</button>
+    <label class="select" title="Detection model">
+      <span class="sr">Detection model</span>
+      <select id="modelSelect"></select>
+    </label>
+  </header>
+
+  <main class="view view-map" id="view-map">
+    <section class="mapwrap" id="mapwrap">
+      <svg id="map" role="img" aria-label="Network map of the current window"></svg>
+      <div class="headline" id="headline"></div>
+      <div class="legend" id="legend"></div>
+      <div class="mapcontrols">
+        <button class="iconbtn" id="resetZoom" title="Reset view">Reset view</button>
+      </div>
+      <div class="tooltip" id="tooltip" hidden></div>
+      <div class="busy" id="busy" hidden><div class="busy-inner"><div class="spinner"></div><p id="busyText">Building graphs and classifying flows</p></div></div>
+      <div class="error" id="errorBox" hidden></div>
+    </section>
+    <aside class="side" id="side"></aside>
+    <footer class="transport" id="transport">
+      <button class="play" id="play" aria-label="Play">
+        <svg viewBox="0 0 24 24" class="i-play"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+        <svg viewBox="0 0 24 24" class="i-pause"><path d="M6.5 4.5h4v15h-4zM13.5 4.5h4v15h-4z" fill="currentColor"/></svg>
+      </button>
+      <div class="wave" id="waveWrap"><svg id="wave"></svg></div>
+      <div class="clock" id="clock"></div>
+      <div class="speed" id="speed" role="radiogroup" aria-label="Playback speed">
+        <button data-speed="1" class="on">1x</button><button data-speed="2">2x</button><button data-speed="4">4x</button>
+      </div>
+    </footer>
+  </main>
+
+  <main class="view report" id="view-eval" hidden></main>
+  <main class="view report" id="view-method" hidden></main>
+
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="sheet" id="sheet" hidden aria-label="Scenario">
+    <div class="sheet-head">
+      <h2>Build a scenario</h2>
+      <button class="iconbtn" id="closeScenario" aria-label="Close">Close</button>
+    </div>
+    <div class="field">
+      <div class="label">Network</div>
+      <div class="radios" id="profileRadios">
+        <label><input type="radio" name="profile" value="enterprise" checked><span><b>Enterprise LAN</b><small>80 workstations and 7 servers; the network the model was trained on</small></span></label>
+        <label><input type="radio" name="profile" value="iot"><span><b>IoT network</b><small>150 sensors and cameras the model has never seen; watch the drift indicator</small></span></label>
+      </div>
+    </div>
+    <div class="field">
+      <div class="label">Attacks to inject</div>
+      <div class="chips" id="attackChips"></div>
+    </div>
+    <div class="field two">
+      <div>
+        <div class="label">Length</div>
+        <div class="segmented" id="lengthSeg"><button data-min="5">5 min</button><button data-min="10" class="on">10 min</button><button data-min="20">20 min</button></div>
+      </div>
+      <div>
+        <div class="label">Intensity <span id="intensityVal">1.0x</span></div>
+        <input type="range" id="intensity" min="0.3" max="2" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="sheet-actions">
+      <button class="btn" id="runScenario">Run scenario</button>
+      <button class="btn ghost" id="randomSeed" title="Same attacks, different traffic">New random traffic</button>
+    </div>
+    <div class="divider"></div>
+    <div class="field">
+      <div class="label">Or analyse your own capture</div>
+      <p class="hint">A CICFlowMeter CSV (CIC-IDS2017 TrafficLabelling, CICDDoS2019), a NetFlow NF-* CSV, or a .pcap file up to 25 MB.</p>
+      <label class="file"><input type="file" id="fileInput" accept=".csv,.pcap,.pcapng,.cap"><span>Choose a file</span></label>
+    </div>
+  </section>
+</div>
+<script src="console.js"></script>
+</body>
+</html>
