@@ -2,20 +2,20 @@
 
 Data: **synthetic enterprise network (seed 0)** - 63,476 flows in 90 graph windows (20s each). Chronological split: train 38,404 / val 11,173 / test 13,899 flows.
 
-Environment: Python 3.11.17, PyTorch 2.14.1+cpu, CPU (2 threads). Total run time 5.6 min.
+Environment: Python 3.11.17, PyTorch 2.14.1+cpu, CPU (2 threads). Total run time 5.9 min.
 
 ## 1. Detection performance (test split)
 
 | Model | Accuracy | Macro-F1 | Weighted-F1 | DDoS F1 | FPR | Detection rate | Latency ms/window | Flows/s |
 |---|---|---|---|---|---|---|---|---|
-| Flow-MLP (no graph) | 0.8912 | 0.7967 | 0.8848 | 0.8554 | 0.0497 | 0.9467 | 0.2 | 3,907,288 |
-| GCN **(default)** | 0.9982 | 0.9991 | 0.9982 | 0.9969 | 0.0010 | 0.9976 | 1.1 | 712,653 |
-| GAT (edge-attention) | 0.9976 | 0.9986 | 0.9976 | 0.9959 | 0.0021 | 0.9973 | 2.2 | 356,998 |
-| E-GraphSAGE (directed) | 0.9961 | 0.9971 | 0.9961 | 0.9934 | 0.0012 | 0.9942 | 1.6 | 484,349 |
-| E-GraphSAGE (no node stats) | 0.9862 | 0.9513 | 0.9849 | 0.9915 | 0.0022 | 0.9920 | 1.6 | 485,809 |
-| Random Forest (flow features) | 0.9339 | 0.9385 | 0.9343 | 0.9001 | 0.0485 | 0.9702 | 27.2 | 28,417 |
-| Random Forest + graph statistics | 0.9953 | 0.9971 | 0.9953 | 0.9911 | 0.0003 | 0.9922 | 15.8 | 48,813 |
-| Gradient Boosting (flow features) | 0.9316 | 0.9377 | 0.9328 | 0.9005 | 0.0622 | 0.9791 | 7.2 | 107,877 |
+| Flow-MLP (no graph) | 0.8912 | 0.7967 | 0.8848 | 0.8554 | 0.0497 | 0.9467 | 0.2 | 4,202,367 |
+| GCN **(default)** | 0.9982 | 0.9991 | 0.9982 | 0.9969 | 0.0010 | 0.9976 | 1.0 | 747,440 |
+| GAT (edge-attention) | 0.9976 | 0.9986 | 0.9976 | 0.9959 | 0.0021 | 0.9973 | 2.1 | 370,211 |
+| E-GraphSAGE (directed) | 0.9961 | 0.9971 | 0.9961 | 0.9934 | 0.0012 | 0.9942 | 1.6 | 496,649 |
+| E-GraphSAGE (no node stats) | 0.9862 | 0.9513 | 0.9849 | 0.9915 | 0.0022 | 0.9920 | 1.5 | 498,932 |
+| Random Forest (flow features) | 0.9339 | 0.9385 | 0.9343 | 0.9001 | 0.0485 | 0.9702 | 25.7 | 30,090 |
+| Random Forest + graph statistics | 0.9953 | 0.9971 | 0.9953 | 0.9911 | 0.0003 | 0.9922 | 12.7 | 60,963 |
+| Gradient Boosting (flow features) | 0.9316 | 0.9377 | 0.9328 | 0.9005 | 0.0622 | 0.9791 | 8.2 | 94,274 |
 
 ### Per-class results - GCN
 
@@ -41,7 +41,7 @@ Benign-traffic drift (PSI vs. training): in-domain test 0.006, IoT network 0.622
 | Model | In-domain macro-F1 | IoT macro-F1 | IoT DDoS F1 | IoT FPR | IoT detection rate |
 |---|---|---|---|---|---|
 | Flow-MLP (no graph) | 0.7967 | 0.5546 | 0.8646 | 0.7460 | 0.9594 |
-| GCN | 0.9991 | 0.6714 | 0.9962 | 0.7218 | 0.9983 |
+| GCN | 0.9991 | 0.6712 | 0.9962 | 0.7218 | 0.9983 |
 | GAT (edge-attention) | 0.9986 | 0.6908 | 0.9952 | 0.6716 | 0.9941 |
 | E-GraphSAGE (directed) | 0.9971 | 0.6897 | 0.9739 | 0.6606 | 0.9985 |
 | E-GraphSAGE (no node stats) | 0.9513 | 0.3447 | 0.2275 | 0.6773 | 0.8873 |
@@ -55,7 +55,7 @@ Fine-tuned on the first 7,762 IoT flows (12 windows, about 4 min of labelled tra
 
 | Model | IoT macro-F1 before | IoT FPR before | IoT macro-F1 after | IoT FPR after | Enterprise macro-F1 after |
 |---|---|---|---|---|---|
-| GCN | 0.6737 | 0.7186 | 0.8276 | 0.0011 | 0.9959 |
+| GCN | 0.6735 | 0.7186 | 0.8274 | 0.0011 | 0.9959 |
 | Flow-MLP (no graph) | 0.5404 | 0.7461 | 0.6476 | 0.1226 | 0.6929 |
 | Random Forest + graph statistics | 0.8470 | 0.0009 | 0.8941 | 0.0004 | 0.9981 |
 
@@ -94,18 +94,19 @@ White-box PGD (10 steps) on attacker-controllable features (timing, volume, pack
 
 | Method | Fidelity+ (log-odds) | Fidelity- (log-odds) | Flip rate | Sparsity | Stability | Runtime ms |
 |---|---|---|---|---|---|---|
-| Integrated Gradients | 5.806 | 1.425 | 0.29 | 0.792 | 0.942 | 56.7 |
-| SHAP | 4.295 | 2.535 | 0.16 | 0.871 | 0.631 | 1231.5 |
-| GNNExplainer (feature mask) | 3.222 | 3.018 | 0.16 | 0.429 | 0.926 | 406.3 |
+| Integrated Gradients | 5.806 | 1.424 | 0.29 | 0.792 | 0.942 | 61.5 |
+| SHAP | 4.295 | 2.535 | 0.16 | 0.871 | 0.631 | 1313.9 |
+| GNNExplainer (feature mask) | 3.225 | 3.018 | 0.16 | 0.429 | 0.922 | 388.7 |
 | Random | 0.441 | 6.130 | 0.00 | 0.477 | 0.064 | 0.1 |
 
 ### Structural explanation (top 20% of neighbouring flows removed / kept)
 
 | Method | Fidelity+ (log-odds) | Fidelity- (log-odds) | Sparsity | Stability | Runtime ms |
 |---|---|---|---|---|---|
-| GNNExplainer | 0.184 | 3.443 | 0.467 | 0.103 | 403.5 |
+| Edge Integrated Gradients | 3.253 | 1.973 | 0.659 | 0.904 | 68.0 |
+| GNNExplainer | 0.181 | 3.443 | 0.565 | 0.103 | 389.9 |
 | Same-destination heuristic | 2.351 | 1.539 | nan | nan | 0.0 |
-| Random | 0.215 | 2.912 | nan | nan | 0.0 |
+| Random | 0.215 | 2.913 | nan | nan | 0.0 |
 
 Example narratives: [example_explanations.md](example_explanations.md)
 
