@@ -10,8 +10,9 @@ from xgnn_ids.config import CLASSES, GraphConfig, TrainConfig  # noqa: E402
 from xgnn_ids.data.features import EDGE_FEATURE_NAMES  # noqa: E402
 from xgnn_ids.data.synthetic import generate_traffic  # noqa: E402
 from xgnn_ids.explain.core import batched_target_proba, build_context, target_proba  # noqa: E402
-from xgnn_ids.explain.explainers import (feature_counterfactual, gnn_explainer, integrated_gradients,  # noqa: E402
-                                         permutation_shap, structural_counterfactual)
+from xgnn_ids.explain.explainers import (edge_integrated_gradients, feature_counterfactual,  # noqa: E402
+                                         gnn_explainer, integrated_gradients, permutation_shap,
+                                         structural_counterfactual)
 from xgnn_ids.explain.quality import feature_fidelity, sparsity, structural_fidelity, topk_jaccard  # noqa: E402
 from xgnn_ids.graph.builder import build_graphs, chronological_split  # noqa: E402
 from xgnn_ids.models.gnn import build_model, num_hops  # noqa: E402
@@ -99,6 +100,10 @@ def test_explainers(graphs, prep):
     p0 = batched_target_proba(ctx, np.zeros((1, ig.size), np.float32))[0, ctx.cls]
     assert abs(ig.sum() - (ctx.probs[ctx.cls] - p0)) < 0.15    # IG completeness (Riemann approximation)
 
+    eig = edge_integrated_gradients(ctx, steps=16)
+    assert eig.shape == (ctx.m,) and np.isfinite(eig).all()
+    assert eig[ctx.target] == np.abs(eig).max()
+
     em, fm = gnn_explainer(ctx, epochs=30)
     assert em.shape == (ctx.m,) and fm.shape == (ig.size,)
     assert em[ctx.target] == 1.0 and (em >= 0).all() and (em <= 1).all()
@@ -155,8 +160,11 @@ def test_detector_roundtrip(trained):
     assert (res.window_of >= 0).all()
     assert not res.windows.empty
     row = int(res.alerts["confidence"].idxmax())
-    exp = det.explain(res, row, ("ig", "gnnexplainer", "counterfactual", "shap"))
+    exp = det.explain(res, row, ("ig", "edge_ig", "gnnexplainer", "counterfactual", "shap"))
     assert exp["prediction"]["label"] != "BENIGN"
+    if exp["subgraph"]["flows"] > 1:
+        assert exp["structure"]["method"] == "Edge Integrated Gradients"
+        assert exp["structure_gnnexplainer"]["method"] == "GNNExplainer"
     assert "Integrated Gradients" in exp["features"] and "SHAP" in exp["features"]
     assert exp["narrative"].startswith("**")
     inc = det.incidents(res)

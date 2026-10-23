@@ -69,6 +69,42 @@ def permutation_shap(f, x: np.ndarray, background: np.ndarray, n_perm: int = 8, 
     return phi / n_perm
 
 
+def edge_integrated_gradients(ctx: ExplainContext, steps: int = 32, max_edges: int = 400_000) -> np.ndarray:
+    """Integrated Gradients over the message-passing weights of the neighbouring flows.
+
+    Path: all neighbouring flows scaled from absent (weight 0) to present (weight 1); the explained
+    flow itself stays present. Returns one attribution per flow of the computation subgraph
+    (positive = the flow pushes the prediction towards the explained class).
+    """
+    m = ctx.m
+    if m <= 1:
+        return np.ones(m)
+    keep = torch.zeros(m, dtype=torch.bool)
+    keep[ctx.target] = True
+    alphas = torch.linspace(1.0 / steps, 1.0, steps)
+    chunk = max(1, max_edges // m)
+    total = torch.zeros(m)
+    for p in ctx.model.parameters():
+        p.requires_grad_(False)
+    try:
+        for i in range(0, steps, chunk):
+            a = alphas[i:i + chunk]
+            b = len(a)
+            w = a.repeat_interleave(m).view(b, m).clone()
+            w[:, keep] = 1.0
+            w = w.reshape(-1).requires_grad_(True)
+            x, ei, ea, tgt, _, _ = _replicate(ctx, b)
+            prob = F.softmax(ctx.model(x, ei, ea, w)[tgt], 1)[:, ctx.cls].sum()
+            (g,) = torch.autograd.grad(prob, w)
+            total += g.view(b, m).sum(0)
+    finally:
+        for p in ctx.model.parameters():
+            p.requires_grad_(True)
+    attr = (total / steps).numpy()
+    attr[ctx.target] = np.abs(attr).max() if m > 1 else 1.0
+    return attr
+
+
 def _entropy(q: torch.Tensor) -> torch.Tensor:
     return -(q * (q + 1e-12).log() + (1 - q) * (1 - q + 1e-12).log())
 

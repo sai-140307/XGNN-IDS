@@ -124,7 +124,7 @@ def explain(req: ExplainRequest):
         raise HTTPException(409, "call /detect first")
     if not 0 <= req.row < len(res.df):
         raise HTTPException(404, "row out of range")
-    methods = ("ig", "gnnexplainer", "counterfactual") + (("shap",) if req.shap else ())
+    methods = ("ig", "edge_ig", "counterfactual") + (("shap",) if req.shap else ())
     exp = det.explain(res, req.row, methods)
     if "structure" in exp:
         exp["structure"] = {k: v for k, v in exp["structure"].items() if k not in {"edge_mask", "sub_edges"}}

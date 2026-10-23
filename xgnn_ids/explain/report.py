@@ -9,8 +9,8 @@ from ..data.features import EDGE_FEATURE_LABELS, EDGE_FEATURE_NAMES
 from ..graph.builder import WindowGraph
 from .core import build_context, feature_space
 from .evidence import graph_evidence
-from .explainers import (feature_counterfactual, gnn_explainer, integrated_gradients, shap_attribution,
-                         structural_counterfactual, timed)
+from .explainers import (edge_integrated_gradients, feature_counterfactual, gnn_explainer, integrated_gradients,
+                         shap_attribution, structural_counterfactual, timed)
 
 PROTO = {6: "TCP", 17: "UDP", 1: "ICMP"}
 
@@ -30,7 +30,9 @@ def raw_feature_text(name: str, value: float) -> str:
         return f"{max(np.expm1(value), 0):,.0f}"
     if name in _UNITS:
         v = max(float(np.expm1(value)), 0.0)
-        return f"{v:,.0f} {_UNITS[name]}" if v >= 10 else f"{v:,.2f} {_UNITS[name]}"
+        if v >= 10 or v < 0.005:
+            return f"{v:,.0f} {_UNITS[name]}"
+        return f"{v:,.2f} {_UNITS[name]}"
     if name == "bwd_fwd_byte_ratio":
         return f"{np.exp(value):.2f}x"
     if name.endswith("_ratio"):
@@ -67,10 +69,16 @@ def _top_features(ctx, attr: np.ndarray, k: int = 8) -> list[dict]:
     return out
 
 
+DEFAULT_METHODS = ("ig", "edge_ig", "counterfactual")
+
+
 def explain_flow(model, prep, graph: WindowGraph, df: pd.DataFrame, edge_id: int, hops: int,
-                 background: np.ndarray | None = None, methods=("ig", "gnnexplainer", "counterfactual"),
-                 shap_nsamples: int = 200) -> dict:
-    """Run the requested explainers and build the structured explanation + narrative."""
+                 background: np.ndarray | None = None, methods=DEFAULT_METHODS, shap_nsamples: int = 200) -> dict:
+    """Run the requested explainers and build the structured explanation + narrative.
+
+    methods: "ig" (Integrated Gradients), "shap", "edge_ig" (which neighbouring flows mattered,
+    gradient-based), "gnnexplainer" (GNNExplainer edge + feature masks), "counterfactual".
+    """
     ctx = build_context(model, prep, graph, edge_id, hops)
     row = df.iloc[graph.flow_rows[edge_id]]
     cls_name = CLASSES[ctx.cls]
@@ -94,11 +102,18 @@ def explain_flow(model, prep, graph: WindowGraph, df: pd.DataFrame, edge_id: int
         out["features"]["SHAP"] = _top_features(ctx, attr)
         out["timings_ms"]["SHAP"] = ms
     edge_mask = None
+    if "edge_ig" in methods and ctx.m > 1:
+        edge_mask, ms = timed(edge_integrated_gradients, ctx)
+        out["timings_ms"]["Edge Integrated Gradients"] = ms
+        out["structure"] = structural_summary(ctx, edge_mask, df, "Edge Integrated Gradients")
     if "gnnexplainer" in methods and ctx.m > 1:
-        (edge_mask, feat_mask), ms = timed(gnn_explainer, ctx)
+        (gx_mask, feat_mask), ms = timed(gnn_explainer, ctx)
         out["timings_ms"]["GNNExplainer"] = ms
         out["features"]["GNNExplainer (feature mask)"] = _top_features(ctx, feat_mask - feat_mask.min())
-        out["structure"] = structural_summary(ctx, edge_mask, df)
+        out["structure_gnnexplainer"] = structural_summary(ctx, gx_mask, df, "GNNExplainer")
+        if edge_mask is None:
+            edge_mask = gx_mask
+            out["structure"] = out["structure_gnnexplainer"]
     if "counterfactual" in methods and ctx.cls != 0:
         sc = prep.edge_scaler
         bounds = (sc.lo, sc.hi) if sc.lo is not None else None
@@ -118,24 +133,29 @@ def explain_flow(model, prep, graph: WindowGraph, df: pd.DataFrame, edge_id: int
     return out
 
 
-def structural_summary(ctx, edge_mask: np.ndarray, df: pd.DataFrame, k: int = 10) -> dict:
+def structural_summary(ctx, scores: np.ndarray, df: pd.DataFrame, method: str, k: int = 10) -> dict:
+    """Summarise per-flow structural attributions (positive part) for display and narrative."""
     g = ctx.graph
     sub = ctx.sub_edges
     src, dst = g.edge_index[:, sub]
     t_src, t_dst = src[ctx.target], dst[ctx.target]
     others = np.arange(ctx.m) != ctx.target
-    mass = edge_mask[others].sum()
-    share_dst = float(edge_mask[others & (dst == t_dst)].sum() / mass) if mass > 0 else 0.0
-    share_src = float(edge_mask[others & (src == t_src)].sum() / mass) if mass > 0 else 0.0
-    top = [i for i in np.argsort(-edge_mask) if i != ctx.target][:k]
+    pos = np.clip(np.asarray(scores, float), 0, None)
+    pos[~others] = 0.0
+    mass = pos.sum()
+    share_dst = float(pos[others & (dst == t_dst)].sum() / mass) if mass > 0 else 0.0
+    share_src = float(pos[others & (src == t_src)].sum() / mass) if mass > 0 else 0.0
+    srt = np.sort(pos[others])[::-1]
+    n80 = int(np.searchsorted(np.cumsum(srt) / mass, 0.8) + 1) if mass > 0 else 0
+    top = [int(i) for i in np.argsort(-pos) if i != ctx.target and pos[i] > 0][:k]
     rows = df.iloc[g.flow_rows[sub[top]]] if top else df.iloc[[]]
+    norm = pos / pos.max() if pos.max() > 0 else pos
+    norm[ctx.target] = 1.0
     top_edges = [{"src": str(r.src_ip), "dst": str(r.dst_ip), "dst_port": int(r.dst_port),
-                  "importance": float(edge_mask[i])} for i, r in zip(top, rows.itertuples())]
-    top_share = float(edge_mask[top].sum() / mass) if mass > 0 and top else 0.0
-    return {"neighbour_flows": int(others.sum()), "share_same_destination": share_dst,
-            "share_same_source": share_src, "important_flows": int((edge_mask[others] > 0.5).sum()),
-            "top_share": top_share, "max_importance": float(edge_mask[others].max()) if others.any() else 0.0,
-            "top_edges": top_edges, "edge_mask": edge_mask.tolist(), "sub_edges": sub.tolist()}
+                  "importance": float(norm[i])} for i, r in zip(top, rows.itertuples())]
+    return {"method": method, "neighbour_flows": int(others.sum()), "share_same_destination": share_dst,
+            "share_same_source": share_src, "important_flows": n80, "evidence_mass": float(mass),
+            "top_edges": top_edges, "edge_mask": norm.tolist(), "sub_edges": sub.tolist()}
 
 
 def narrative(e: dict) -> str:
@@ -157,16 +177,15 @@ def narrative(e: dict) -> str:
                    + "; ".join(f"{x['label'].split(': ', 1)[-1]} = {x['value']}" for x in flow) + ".")
     st = e.get("structure")
     if st and st["neighbour_flows"]:
-        where = ("flows towards the same destination" if st["share_same_destination"] >= st["share_same_source"]
-                 else "other flows from the same source")
-        share = max(st["share_same_destination"], st["share_same_source"])
-        if st["max_importance"] >= 0.5:
-            why.append(f"- **Neighbouring flows (GNNExplainer):** {st['important_flows']} of {st['neighbour_flows']} "
-                       f"neighbouring flows are important; {share:.0%} of the weight is on {where}.")
+        if st["important_flows"] == 0:
+            why.append(f"- **Neighbouring flows:** none of the {st['neighbour_flows']} neighbouring flows adds evidence; "
+                       "the flow's own properties and host statistics decide.")
         else:
-            why.append(f"- **Neighbouring flows (GNNExplainer):** no single one of the {st['neighbour_flows']} "
-                       f"neighbouring flows is decisive - the evidence is spread out ({share:.0%} of the weight is on "
-                       f"{where}).")
+            where = ("flows towards the same destination" if st["share_same_destination"] >= st["share_same_source"]
+                     else "other flows from the same source")
+            share = max(st["share_same_destination"], st["share_same_source"])
+            why.append(f"- **Neighbouring flows:** {st['important_flows']} of {st['neighbour_flows']} neighbouring flows "
+                       f"carry 80% of the structural evidence; {share:.0%} of it comes from {where}.")
     if len(why) > 0:
         lines += ["", "**Why:**", *why]
     cf, scf = e.get("counterfactual_features"), e.get("counterfactual_structure")

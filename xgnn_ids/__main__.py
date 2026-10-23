@@ -112,7 +112,7 @@ def main(argv=None) -> int:
                 print("no alerts in this input")
                 return 0
             row = int(alerts["confidence"].idxmax())
-        methods = ("ig", "gnnexplainer", "counterfactual") + (("shap",) if a.shap else ())
+        methods = ("ig", "edge_ig", "counterfactual") + (("shap",) if a.shap else ())
         exp = det.explain(res, row, methods)
         print(exp["narrative"])
         for name, feats in exp["features"].items():

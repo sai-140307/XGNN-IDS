@@ -7,7 +7,7 @@ import pandas as pd
 from ..config import CLASSES
 from ..graph.builder import WindowGraph
 from .core import build_context
-from .explainers import gnn_explainer, integrated_gradients, shap_attribution, timed
+from .explainers import edge_integrated_gradients, gnn_explainer, integrated_gradients, shap_attribution, timed
 from .quality import feature_fidelity, perturbed_context, sparsity, structural_fidelity, topk_jaccard
 
 
@@ -56,6 +56,8 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
                               "stability": stab, **fid})
         if ctx.m > 1:
             (em, _), ms = timed(gnn_explainer, ctx, 100)
+            eig, ms_eig = timed(edge_integrated_gradients, ctx)
+            eig_noisy = edge_integrated_gradients(noisy) if noisy is not None else None
             em2, _ = gnn_explainer(ctx, 100, seed=1)
             others = [i for i in range(ctx.m) if i != ctx.target]
             sub = ctx.sub_edges
@@ -63,13 +65,16 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
             # heuristic baseline: flows sharing the destination are important
             heur = np.where(dst == dst[ctx.target], 1.0, 0.0) + 1e-3 * rng.random(ctx.m)
             rand = rng.random(ctx.m)
-            for mname, mask, t in (("GNNExplainer", em, ms), ("Same-destination heuristic", heur, 0.0),
-                                   ("Random", rand, 0.0)):
+            stab = {"GNNExplainer": topk_jaccard(em[others], em2[others], 10),
+                    "Edge Integrated Gradients": (topk_jaccard(eig[others], eig_noisy[others], 10)
+                                                  if eig_noisy is not None else np.nan)}
+            spars = {"GNNExplainer": sparsity(em[others]), "Edge Integrated Gradients": sparsity(np.clip(eig[others], 0, None))}
+            for mname, mask, t in (("Edge Integrated Gradients", eig, ms_eig), ("GNNExplainer", em, ms),
+                                   ("Same-destination heuristic", heur, 0.0), ("Random", rand, 0.0)):
                 fid = structural_fidelity(ctx, mask, frac=0.2)
                 struct_rows.append({
                     "method": mname, "class": cls, "runtime_ms": t, "neighbours": len(others), **fid,
-                    "sparsity": float(1 - (mask[others] > 0.5).mean()) if mname == "GNNExplainer" else np.nan,
-                    "stability": topk_jaccard(em[others], em2[others], 10) if mname == "GNNExplainer" else np.nan,
+                    "sparsity": spars.get(mname, np.nan), "stability": stab.get(mname, np.nan),
                 })
     feat = pd.DataFrame(feat_rows)
     struct = pd.DataFrame(struct_rows)
