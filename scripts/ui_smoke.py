@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import threading
 import time
 import urllib.request
 from pathlib import Path
@@ -27,6 +28,20 @@ def wait_http(url: str, timeout: float = 120) -> None:
         except Exception:
             time.sleep(1)
     raise TimeoutError(url)
+
+
+def browse(stop: threading.Event) -> None:
+    """Generate ordinary web traffic while the live capture runs."""
+    sites = ["https://github.com", "https://pypi.org", "https://www.python.org", "https://example.com",
+             "https://www.wikipedia.org", "https://www.cloudflare.com", "https://www.google.com", "https://www.bing.com"]
+    while not stop.is_set():
+        for url in sites:
+            try:
+                urllib.request.urlopen(url, timeout=5).read(20000)
+            except Exception:
+                pass
+            if stop.wait(0.7):
+                return
 
 
 def main() -> int:
@@ -66,6 +81,33 @@ def main() -> int:
             frame.locator('.views button[data-view="method"]').click()
             page.wait_for_timeout(1500)
             page.screenshot(path=OUT / "console-method.png")
+
+            # live capture of this machine's real traffic (needs root; skipped otherwise)
+            frame.locator('.views button[data-view="map"]').click()
+            frame.locator("#openScenario").click()
+            page.wait_for_timeout(800)
+            if frame.locator("#liveControls").is_visible():
+                stop = threading.Event()
+                threading.Thread(target=browse, args=(stop,), daemon=True).start()
+                frame.locator("#startLive").click()
+                frame.locator("#liveBadge").wait_for(timeout=60_000)
+                deadline = time.time() + 150
+                while time.time() < deadline:
+                    h1 = frame.locator("#headline h1").inner_text()
+                    if h1 != "Listening for traffic" and frame.locator("#liveText").inner_text().count("captured"):
+                        if time.time() > deadline - 90:      # let at least two windows complete
+                            break
+                    page.wait_for_timeout(5000)
+                stop.set()
+                page.wait_for_timeout(2000)
+                page.screenshot(path=OUT / "console-live.png")
+                log.append("live headline: " + frame.locator("#headline h1").inner_text())
+                log.append("live status: " + frame.locator("#liveText").inner_text())
+                log.append("live incidents: " + frame.locator(".side-head .count").first.inner_text())
+                frame.locator("#stopLive").click()
+                page.wait_for_timeout(3000)
+            else:
+                log.append("live capture not available: " + frame.locator("#liveHint").inner_text())
             browser.close()
     except Exception as exc:  # keep whatever screenshots exist, report the failure
         ok = False

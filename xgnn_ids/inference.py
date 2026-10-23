@@ -92,11 +92,17 @@ class Detector:
                    art.get("uncertainty_threshold", {}).get(name, 0.5), art)
 
     # ------------------------------------------------------------------ inference
-    def detect(self, df: pd.DataFrame, drift_min_flows: int = 150) -> Detection:
+    def detect(self, df: pd.DataFrame, drift_min_flows: int = 150, origin: float | None = None) -> Detection:
+        if df is None or len(df) == 0:
+            empty = pd.DataFrame(columns=CANONICAL_COLUMNS + ["pred_label", "confidence", "uncertain", "window"])
+            windows = pd.DataFrame(columns=["window", "t0", "t1", "segment", "flows", "hosts", "alerts", "latency_ms",
+                                            "drift_psi", *CLASSES[1:]])
+            return Detection(empty, [], np.zeros((0, len(CLASSES)), np.float32), np.zeros(0, np.int64),
+                             np.zeros(0, np.int64), windows)
         df = coerce_numeric(df)
         extra = [c for c in df.columns if c not in CANONICAL_COLUMNS]
         df = df[CANONICAL_COLUMNS + extra].reset_index(drop=True)
-        graphs = build_graphs(df, self.graph_cfg)
+        graphs = build_graphs(df, self.graph_cfg, origin)
         n = len(df)
         probs = np.zeros((n, len(CLASSES)), np.float32)
         window_of = np.full(n, -1, np.int64)

@@ -102,11 +102,12 @@ def build_window(df: pd.DataFrame, rows: np.ndarray, window_id: int, segment: st
                        np.asarray(rows, dtype=np.int64))
 
 
-def build_graphs(df: pd.DataFrame, cfg: GraphConfig | None = None) -> list[WindowGraph]:
+def build_graphs(df: pd.DataFrame, cfg: GraphConfig | None = None, origin: float | None = None) -> list[WindowGraph]:
     """Slice a canonical flow table into time windows and build one graph per window.
 
-    Windows are computed per segment. Windows with more than ``cfg.max_edges``
-    flows are split into consecutive chunks (keeps memory bounded for DDoS peaks).
+    Windows are computed per segment, starting at the segment's first flow (or at ``origin``,
+    which keeps window boundaries fixed for a live, sliding capture). Windows with more than
+    ``cfg.max_edges`` flows are split into consecutive chunks (keeps memory bounded for DDoS peaks).
     """
     cfg = cfg or GraphConfig()
     df = df.reset_index(drop=True)
@@ -118,7 +119,7 @@ def build_graphs(df: pd.DataFrame, cfg: GraphConfig | None = None) -> list[Windo
         ts = df["ts"].to_numpy(float)[idx]
         order = np.argsort(ts, kind="stable")
         idx, ts = idx[order], ts[order]
-        start = ts.min() if len(ts) else 0.0
+        start = origin if origin is not None else (ts.min() if len(ts) else 0.0)
         win = np.floor((ts - start) / cfg.window_s).astype(np.int64)
         bounds = np.flatnonzero(np.diff(win)) + 1
         for chunk in np.split(np.arange(len(idx)), bounds):

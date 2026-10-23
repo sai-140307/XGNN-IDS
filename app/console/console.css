@@ -47,6 +47,17 @@ button { cursor: pointer; }
 .spacer { flex: 1; }
 .scenario-line { color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
 .scenario-line b { color: var(--ink); font-weight: 600; }
+.livebadge { display: flex; align-items: center; gap: 10px; white-space: nowrap; color: var(--ink-2); font-size: 13px; }
+.livebadge b { color: var(--ink); }
+.pulse { width: 10px; height: 10px; border-radius: 50%; background: #E0352B; box-shadow: 0 0 0 0 rgba(224, 53, 43, 0.5);
+  animation: pulse 1.6s ease-out infinite; }
+@keyframes pulse { to { box-shadow: 0 0 0 10px rgba(224, 53, 43, 0); } }
+@media (prefers-reduced-motion: reduce) { .pulse { animation: none; } }
+.live-controls { display: flex; gap: 8px; align-items: center; }
+.live-controls .select { flex: 1; min-width: 0; }
+.live-controls select { width: 100%; }
+.verdict-note { margin-top: 10px; padding: 8px 10px; background: var(--paper); border-radius: 4px; font-size: 12.5px;
+  color: var(--ink-2); }
 .btn { border: 1px solid var(--ink); background: var(--ink); color: var(--paper); padding: 7px 14px; border-radius: 4px;
   font-weight: 600; white-space: nowrap; }
 .btn:hover { background: #26323d; }
