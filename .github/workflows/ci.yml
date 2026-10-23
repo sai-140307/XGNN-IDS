@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
@@ -24,15 +24,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest httpx ruff
       - name: Lint
-        continue-on-error: true
         run: |
-          mkdir -p ci-logs
-          ruff check --output-format=concise . | tee ci-logs/ruff.txt
           ruff check --output-format=github .
       - name: Tests
         run: |
           set -o pipefail
-          pytest -q --durations=10 -rA --tb=short 2>&1 | tee ci-logs/pytest.txt
+          pytest -q --durations=10 --tb=short
       - name: CLI smoke test
         run: |
           set -o pipefail
@@ -42,12 +39,4 @@ jobs:
             --no-zero-day --no-adversarial --no-xai --out /tmp/res --models-dir /tmp/models &&
           python -m xgnn_ids detect /tmp/flows.csv --models-dir /tmp/models --out /tmp/alerts.csv --incidents /tmp/inc.json &&
           python -m xgnn_ids explain /tmp/flows.csv --models-dir /tmp/models
-          } 2>&1 | tee ci-logs/smoke.txt
-      # temporary: publish logs to a branch while the project is being set up
-      - name: Publish logs
-        if: always()
-        run: |
-          cd ci-logs 2>/dev/null || exit 0
-          git init -q -b ci-logs && git add -A
-          git -c user.name=ci -c user.email=ci@example.com commit -qm "logs ${{ github.sha }}"
-          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-logs
+          }

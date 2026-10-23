@@ -15,6 +15,45 @@ have had to change for it to look benign, and a suggested response.
 Team: Sai Chandra Reddy (24BYB0011), N Rishi Pranav (24BYB0082).*
 
 <!-- RESULTS_START -->
+## Results at a glance
+
+Measured on a chronological split (train on the past, test on the future) of 63,476 flows from the built-in
+enterprise-network simulation; full tables, method and figures in [results/RESULTS.md](results/RESULTS.md).
+
+| | Flow-only model | Graph model (GCN) |
+|---|---|---|
+| Macro-F1 across 8 classes | 0.939 (Random Forest) | **0.999** |
+| DDoS F1 | 0.900 | **0.997** |
+| False-positive rate on benign traffic | 4.9% | **0.10%** |
+| Attacks still detected under white-box evasion (ε = 1 std) | 62% (Flow-MLP) | **96%** |
+| Inference time per 20 s window (CPU) | 25.7 ms | **1.0 ms** |
+
+- **Explanations are measured, not assumed.** Integrated Gradients over the flow and its two hosts:
+  fidelity+ 5.8 log-odds vs 0.4 for a random explainer, 94% stability, ~60 ms per alert. For *which
+  neighbouring flows mattered*, edge Integrated Gradients reaches fidelity+ 3.3 and 90% stability, while
+  GNNExplainer (the usual choice in GNN-IDS papers) was no better than random (0.18) - so it is kept only
+  for comparison.
+- **Zero-day:** with one family never labelled, 6 of 7 families are still flagged (≥96% of their flows);
+  low-volume botnet beaconing is the one that slips through.
+- **New network:** on an unseen IoT network every model loses accuracy and the drift monitor fires
+  (PSI 0.62). Fine-tuning on ~4 minutes of local traffic cuts GCN false alarms from 72% to 0.1% while keeping
+  office-network accuracy at 0.996.
+
+![per-class F1](results/per_class_f1.png)
+
+Example of an explanation the console produces (Botnet alert):
+
+> **Botnet** detected with 100% confidence on flow `192.168.10.159:54747 -> 66.137.26.58:6667/TCP`.
+> - **Network context:** 66.137.26.58 received 12 flows from 8 distinct sources in this 20s window.
+> - **Neighbouring flows:** 9 of 299 neighbouring flows carry 80% of the structural evidence; 100% of it
+>   comes from flows towards the same destination.
+> - Removing the 13 most important neighbouring flows from message passing would make it look BENIGN.
+> - **MITRE ATT&CK:** T1071 · **Response:** isolate the internal hosts, block the C2 address.
+
+More: [results/example_explanations.md](results/example_explanations.md).
+
+*Numbers come from synthetic traffic and should not be compared with papers that use CIC-IDS2017 directly;
+the same pipeline trains on real datasets (see [docs/DATASETS.md](docs/DATASETS.md)).*
 <!-- RESULTS_END -->
 
 ## What it does
@@ -22,10 +61,10 @@ Team: Sai Chandra Reddy (24BYB0011), N Rishi Pranav (24BYB0082).*
 | Capability | Details |
 |---|---|
 | Graph-based detection | Directed temporal flow graphs; edge-level **E-GraphSAGE** (direction-aware), **GAT** (edge-feature attention), **GCN**; flow-only MLP, Random Forest and Gradient Boosting baselines |
-| Explainability | **Integrated Gradients**, **SHAP**, **GNNExplainer** (which neighbouring flows matter), **counterfactuals** (what would make it benign), plain-language **network evidence** |
+| Explainability | **Integrated Gradients** and **SHAP** over the flow and its two hosts, **edge Integrated Gradients** and **GNNExplainer** (which neighbouring flows matter), **counterfactuals** (what would make it benign), plain-language **network evidence** |
 | Explanation quality, measured | Fidelity+, fidelity-, sparsity, stability and runtime for every explainer, against a random baseline |
 | From alerts to action | **Incident correlation** (thousands of alerts → a few incidents), **MITRE ATT&CK** mapping, suggested **iptables / nftables** rules |
-| Robustness | **Zero-day** leave-one-attack-out test, **adversarial** evasion (white-box PGD), **cross-domain** test on an unseen IoT network, **concept-drift** monitor (PSI) |
+| Robustness | **Zero-day** leave-one-attack-out test, **adversarial** evasion (white-box PGD), **cross-domain** test on an unseen IoT network with **few-shot adaptation**, **concept-drift** monitor (PSI) |
 | Data sources | Built-in realistic traffic generator, CIC-IDS2017 / CSE-CIC-IDS2018 / CICDDoS2019, NF-* NetFlow datasets, pcap files, **live capture** |
 | Interfaces | Streamlit analyst console with an **attack simulator** and live replay, REST API (FastAPI), command line, Docker |
 
