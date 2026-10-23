@@ -238,7 +238,7 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
     labels = DISPLAY
     plots.confusion_figure(results[default]["confusion_matrix"], f"Confusion matrix - {labels[default]}",
                            out / "confusion_matrix.png")
-    plots.per_class_f1_figure(results, [m for m in ("mlp", "rf", "rf_graphstats", "gat", "egraphsage")
+    plots.per_class_f1_figure(results, [m for m in ("mlp", "rf", "rf_graphstats", "gcn", "gat", "egraphsage")
                                         if m in results], labels, out / "per_class_f1.png")
     plots.training_curves_figure({k: v["history"] for k, v in info.items()}, labels, out / "training_curves.png")
     if "adversarial" in report:

@@ -52,7 +52,7 @@ def per_class_f1_figure(results: dict, models: list[str], labels: dict, path: Pa
     attack = CLASSES
     x = np.arange(len(attack))
     w = 0.8 / len(models)
-    fig, ax = plt.subplots(figsize=(10, 4.2))
+    fig, ax = plt.subplots(figsize=(10, 5.0))
     for i, m in enumerate(models):
         f1 = [results[m]["per_class"][c]["f1"] for c in attack]
         ax.bar(x + i * w - 0.4 + w / 2, f1, w, label=labels.get(m, m), color=PALETTE[i % len(PALETTE)])
@@ -60,7 +60,7 @@ def per_class_f1_figure(results: dict, models: list[str], labels: dict, path: Pa
     ax.set_ylim(0, 1.05)
     ax.set_ylabel("F1 score")
     ax.set_title("Per-class F1 on the chronological test split", fontsize=11, color=INK)
-    ax.legend(fontsize=8, frameon=False, ncol=3, loc="lower left")
+    ax.legend(fontsize=8, frameon=False, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.1))
     _style(ax)
     fig.tight_layout()
     fig.savefig(path, dpi=150)
