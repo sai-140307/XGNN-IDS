@@ -379,7 +379,7 @@ with tab_inv:
 
         c1, c2 = st.columns(2)
         with c1:
-            st.markdown("**Which properties of the flow mattered**")
+            st.markdown("**What the model looked at: the flow and its two hosts**")
             method = st.radio("Attribution method", list(exp["features"].keys()), horizontal=True,
                               label_visibility="collapsed")
             feats = pd.DataFrame(exp["features"][method]).iloc[::-1]
@@ -505,9 +505,19 @@ with tab_eval:
                 st.caption(f"Trained on the enterprise LAN, tested on an IoT network without retraining. "
                            f"Benign-traffic drift: PSI {cd['drift_psi_iot']:.2f} (in-domain {cd['drift_psi_in_domain']:.3f}).")
                 st.dataframe(pd.DataFrame([{"model": names.get(k, k), "in-domain macro-F1": R["results"][k]["macro_f1"],
-                                            "IoT macro-F1": v["macro_f1"], "IoT DDoS F1": v["ddos_f1"]}
+                                            "IoT macro-F1": v["macro_f1"], "IoT false-positive rate": v["fpr"]}
                                            for k, v in cd["results"].items()]).sort_values("IoT macro-F1", ascending=False),
                              hide_index=True, width="stretch")
+                if "few_shot" in cd:
+                    fs = cd["few_shot"]
+                    st.markdown("**After adapting with a few minutes of local traffic**")
+                    st.caption(f"Fine-tuned on the first {fs['adapt_flows']:,} labelled IoT flows, evaluated on the "
+                               f"last {fs['eval_flows']:,}.")
+                    st.dataframe(pd.DataFrame([{
+                        "model": names.get(k, k), "IoT macro-F1 before": v["zero_shot"]["macro_f1"],
+                        "after": v["few_shot"]["macro_f1"], "IoT FPR before": v["zero_shot"]["fpr"],
+                        "FPR after": v["few_shot"]["fpr"], "enterprise macro-F1 after": v["enterprise_after"]["macro_f1"]}
+                        for k, v in fs["results"].items()]), hide_index=True, width="stretch")
         if "adversarial" in R:
             with e2:
                 st.markdown("### Robustness to evasion")

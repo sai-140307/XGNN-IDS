@@ -179,15 +179,20 @@ def is_private_ip(ip: str) -> bool:
 class Standardizer:
     """Mean/std scaler that can be serialised to JSON with the model."""
 
-    def __init__(self, mean: np.ndarray | None = None, std: np.ndarray | None = None, clip: float = 10.0):
+    def __init__(self, mean: np.ndarray | None = None, std: np.ndarray | None = None, clip: float = 10.0,
+                 lo: np.ndarray | None = None, hi: np.ndarray | None = None):
         self.mean = mean
         self.std = std
         self.clip = clip
+        self.lo = lo   # 0.5th / 99.5th percentile of the scaled training data:
+        self.hi = hi   # the "realistic range" used to bound counterfactuals
 
     def fit(self, x: np.ndarray) -> "Standardizer":
         self.mean = x.mean(axis=0)
         std = x.std(axis=0)
         self.std = np.where(std < 1e-6, 1.0, std)
+        z = self.transform(x)
+        self.lo, self.hi = np.quantile(z, 0.005, axis=0), np.quantile(z, 0.995, axis=0)
         return self
 
     def transform(self, x: np.ndarray) -> np.ndarray:
@@ -195,8 +200,12 @@ class Standardizer:
         return np.clip(z, -self.clip, self.clip).astype(np.float32)
 
     def to_dict(self) -> dict:
-        return {"mean": self.mean.tolist(), "std": self.std.tolist(), "clip": self.clip}
+        d = {"mean": self.mean.tolist(), "std": self.std.tolist(), "clip": self.clip}
+        if self.lo is not None:
+            d.update(lo=np.asarray(self.lo).tolist(), hi=np.asarray(self.hi).tolist())
+        return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "Standardizer":
-        return cls(np.asarray(d["mean"], dtype=np.float64), np.asarray(d["std"], dtype=np.float64), d.get("clip", 10.0))
+        arr = (lambda k: np.asarray(d[k], dtype=np.float64) if k in d else None)  # noqa: E731
+        return cls(arr("mean"), arr("std"), d.get("clip", 10.0), arr("lo"), arr("hi"))

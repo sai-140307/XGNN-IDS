@@ -95,7 +95,7 @@ def test_explainers(graphs, prep):
     ctx = build_context(model, prep, g, e, 3)
 
     ig = integrated_gradients(ctx, steps=128)
-    assert ig.shape == (len(EDGE_FEATURE_NAMES),)
+    assert ig.shape == (len(ctx.z0),) and len(ctx.z0) > len(EDGE_FEATURE_NAMES)   # flow + host context
     p0 = batched_target_proba(ctx, np.zeros((1, ig.size), np.float32))[0, ctx.cls]
     assert abs(ig.sum() - (ctx.probs[ctx.cls] - p0)) < 0.15    # IG completeness (Riemann approximation)
 
@@ -104,15 +104,20 @@ def test_explainers(graphs, prep):
     assert em[ctx.target] == 1.0 and (em >= 0).all() and (em <= 1).all()
 
     fid = feature_fidelity(ctx, ig, 5)
-    assert -1 <= fid["fidelity_plus"] <= 1 and -1 <= fid["fidelity_minus"] <= 1
-    sfid = structural_fidelity(ctx, em, 10)
-    assert -1 <= sfid["fidelity_plus"] <= 1
+    assert np.isfinite([fid["fidelity_plus"], fid["fidelity_minus"]]).all()
+    assert -1 <= fid["fidelity_plus_prob"] <= 1
+    sfid = structural_fidelity(ctx, em, 0.2)
+    assert np.isfinite(sfid["fidelity_plus"]) and sfid["k"] >= 1
     assert 0 <= sparsity(ig) < 1
     assert topk_jaccard(ig, ig) == 1.0
 
-    cf = feature_counterfactual(ctx, EDGE_FEATURE_NAMES, steps=100)
+    sc = prep.edge_scaler
+    cf = feature_counterfactual(ctx, EDGE_FEATURE_NAMES, 0, (sc.lo, sc.hi), steps=150)
     if cf["found"]:
         assert int(np.argmax(cf["new_probs"])) == 0
+        assert len(cf["changes"]) <= 4
+        for i, _, new in cf["changes"]:                      # stays inside the realistic range
+            assert sc.lo[i] - 1e-4 <= new <= sc.hi[i] + 1e-4 or new == pytest.approx(ctx.edge_attr[ctx.target, i].item())
     scf = structural_counterfactual(ctx, em)
     assert "found" in scf
 

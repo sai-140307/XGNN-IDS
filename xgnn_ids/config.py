@@ -95,8 +95,8 @@ class TrainConfig:
     dropout: float = 0.1
     lr: float = 3e-3
     weight_decay: float = 1e-4
-    epochs: int = 40
-    patience: int = 8
+    epochs: int = 60
+    patience: int = 10
     batch_edges: int = 25000
     seed: int = 42
 
