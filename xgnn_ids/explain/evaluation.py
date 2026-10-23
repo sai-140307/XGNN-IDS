@@ -77,7 +77,7 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
     def agg(df):
         if df.empty:
             return []
-        g = df.groupby("method").agg(["mean", "std"])
+        g = df.drop(columns=["class"]).groupby("method").agg(["mean", "std"])
         out = []
         for m in df["method"].unique():
             r = {"method": m, "n": int((df["method"] == m).sum())}
