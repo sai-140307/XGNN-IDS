@@ -36,11 +36,13 @@ jobs:
       - name: CLI smoke test
         run: |
           set -o pipefail
-          python -m xgnn_ids generate --profile enterprise --duration 300 --seed 3 --out /tmp/flows.csv
+          {
+          python -m xgnn_ids generate --profile enterprise --duration 300 --seed 3 --out /tmp/flows.csv &&
           python -m xgnn_ids train --data /tmp/flows.csv --quick --models egraphsage --baselines rf \
-            --no-zero-day --no-adversarial --no-xai --out /tmp/res --models-dir /tmp/models
-          python -m xgnn_ids detect /tmp/flows.csv --models-dir /tmp/models --out /tmp/alerts.csv --incidents /tmp/inc.json
+            --no-zero-day --no-adversarial --no-xai --out /tmp/res --models-dir /tmp/models &&
+          python -m xgnn_ids detect /tmp/flows.csv --models-dir /tmp/models --out /tmp/alerts.csv --incidents /tmp/inc.json &&
           python -m xgnn_ids explain /tmp/flows.csv --models-dir /tmp/models
+          } 2>&1 | tee ci-logs/smoke.txt
       # temporary: publish logs to a branch while the project is being set up
       - name: Publish logs
         if: always()
