@@ -1,0 +1,67 @@
+wrote 40,557 flows to /tmp/flows.csv
+label
+DDoS            15513
+DoS              9107
+BENIGN           5906
+Infiltration     3975
+PortScan         3604
+BruteForce       1073
+WebAttack         719
+Botnet            660
+/home/runner/work/XGNN-IDS/XGNN-IDS/xgnn_ids/training/trainer.py:74: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+  total += float(loss)
+[1/8] loading data
+  40,557 flows -> 15 windows (train 9, val 3, test 3)
+[2/8] training graph models
+  [egraphsage] epoch   1 loss 2.0767 val macro-F1 0.4044
+  [egraphsage] epoch   5 loss 1.1649 val macro-F1 0.7044
+  [egraphsage] epoch  10 loss 0.7309 val macro-F1 0.8377
+  E-GraphSAGE (directed)           test macro-F1 0.7751  DDoS-F1 0.8713  FPR 0.5511  2.7 ms/window
+[3/8] training baselines
+  Random Forest (flow features)    test macro-F1 0.9107  DDoS-F1 0.9149  FPR 0.0893
+  default model (best validation macro-F1): E-GraphSAGE (directed)
+[4/8] cross-domain test skipped
+[5/8] zero-day skipped
+[6/8] adversarial skipped
+[7/8] XAI evaluation skipped
+[8/8] writing results
+done in 0.1 min -> /tmp/res/RESULTS.md
+40,557 flows, 36,943 alerts, 16 incidents  ->  /tmp/alerts.csv, /tmp/inc.json
+  [CRITICAL] INC-0001 DDoS against 192.168.10.50 from 1,772 sources (15806 flows)
+  [CRITICAL] INC-0002 Lateral movement / exfiltration from 192.168.10.125 to 82 host(s) (907 flows)
+  [CRITICAL] INC-0003 Lateral movement / exfiltration from 192.168.10.105 to 81 host(s) (869 flows)
+  [CRITICAL] INC-0004 Lateral movement / exfiltration from 192.168.10.119 to 81 host(s) (839 flows)
+  [CRITICAL] INC-0005 Lateral movement / exfiltration from 192.168.10.171 to 81 host(s) (624 flows)
+  [CRITICAL] INC-0006 Lateral movement / exfiltration from 192.168.10.179 to 80 host(s) (445 flows)
+  [HIGH    ] INC-0007 DoS from 203.57.169.250 against 192.168.10.50 (6413 flows)
+  [HIGH    ] INC-0008 DoS from 23.0.80.61 against 192.168.10.50 (1674 flows)
+  [HIGH    ] INC-0009 DoS from 178.171.83.38 against 192.168.10.50 (599 flows)
+  [HIGH    ] INC-0010 DoS from 23.0.80.61 against 192.168.10.50 (148 flows)
+  [HIGH    ] INC-0011 DoS from 91.115.45.163 against 192.168.10.50 (127 flows)
+  [HIGH    ] INC-0012 BruteForce from 23.0.80.61 against 192.168.10.51 (94 flows)
+  [MEDIUM  ] INC-0013 Port scan by 178.171.83.38 (944 ports on 2 host(s)) (1309 flows)
+  [MEDIUM  ] INC-0014 Port scan by 91.115.45.163 (1,127 ports on 1 host(s)) (1127 flows)
+  [MEDIUM  ] INC-0015 Port scan by 91.115.45.163 (591 ports on 1 host(s)) (591 flows)
+**PortScan** detected with 85% confidence on flow `203.57.169.250:65359 -> 192.168.10.106:921/TCP`.
+
+**Why:**
+- **Network context:** 203.57.169.250 used 337 different destination ports towards 192.168.10.106 (typical pair: 1).
+- **Network context:** 99% of flows to 192.168.10.106 got no proper response (window average 40%).
+- **Graph context the model relied on:** destination host: distinct own ports targeted = 337; source host: distinct destination ports used = 337.
+- **Properties of the flow itself:** other well-known port (<1024) = yes; destination port is web (80/443/8080) = no; rst flag count = 1.
+- **Neighbouring flows:** 274 of 456 neighbouring flows carry 80% of the structural evidence; 97% of it comes from flows towards the same destination.
+
+**What would change the decision:**
+- No realistic change to this flow's own properties makes it benign - the decision rests on its context.
+
+**MITRE ATT&CK:** T1046 Network Service Discovery
+**Recommended response:** Block the scanner, verify which services responded as open, watch the source for follow-up exploitation.
+
+Integrated Gradients (ran in 53 ms):
+  +0.3633  Destination host: distinct own ports targeted = 337
+  +0.3104  Source host: distinct destination ports used = 337
+  -0.0457  Source host: flows sent by host = 337
+  -0.0382  Destination host: share of inbound syn-only flows = 99%
+  +0.0324  Flow: other well-known port (<1024) = yes
+  -0.0298  Destination host: private (internal) address = yes

@@ -1,0 +1,91 @@
+...............................................                          [100%]
+=============================== warnings summary ===============================
+tests/test_api_app.py::test_api
+  /home/runner/work/XGNN-IDS/XGNN-IDS/xgnn_ids/training/trainer.py:74: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+  Consider using tensor.detach() first. (Triggered internally at /__w/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:820.)
+    total += float(loss)
+
+tests/test_api_app.py::test_api
+  /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/shap/plots/colors/_colors.py:47: PendingDeprecationWarning: The set_bad function will be deprecated in a future version. Use cmap.with_extremes(bad=...) or Colormap(bad=...) instead.
+    red_blue.set_bad(gray_rgb.tolist(), 1.0)
+
+tests/test_api_app.py::test_api
+  /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/shap/plots/colors/_colors.py:48: PendingDeprecationWarning: The set_over function will be deprecated in a future version. Use cmap.with_extremes(over=...) or Colormap(over=...) instead.
+    red_blue.set_over(gray_rgb.tolist(), 1.0)
+
+tests/test_api_app.py::test_api
+  /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/shap/plots/colors/_colors.py:49: PendingDeprecationWarning: The set_under function will be deprecated in a future version. Use cmap.with_extremes(under=...) or Colormap(under=...) instead.
+    red_blue.set_under(gray_rgb.tolist(), 1.0)  # "under" is incorrectly used instead of "bad" in the scatter plot
+
+tests/test_api_app.py::test_api
+  /opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_api_app.py::test_dashboard_renders
+  /home/runner/work/XGNN-IDS/XGNN-IDS/app/streamlit_app.py:472: Pandas4Warning: Starting with pandas version 4.0 all arguments of sum will be keyword-only.
+    cmn = cm.div(cm.sum(1), axis=0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+____________________________ test_dashboard_renders ____________________________
+----------------------------- Captured stderr call -----------------------------
+2026-10-23 18:08:36.559 WARNING streamlit.runtime.scriptrunner_utils.script_run_context: Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+============================= slowest 10 durations =============================
+438.38s setup    tests/test_api_app.py::test_api
+11.95s call     tests/test_models.py::test_detector_roundtrip
+6.86s call     tests/test_api_app.py::test_api
+2.92s call     tests/test_api_app.py::test_dashboard_renders
+1.50s call     tests/test_models.py::test_explainers
+0.76s call     tests/test_models.py::test_training_learns
+0.25s call     tests/test_data.py::test_canonical_csv_roundtrip
+0.23s call     tests/test_data.py::test_generator_is_deterministic
+0.16s setup    tests/test_models.py::test_forward_shapes_and_masking[mlp]
+0.12s call     tests/test_data.py::test_drift_monitor_detects_new_network
+=========================== short test summary info ============================
+PASSED tests/test_api_app.py::test_api
+PASSED tests/test_api_app.py::test_dashboard_renders
+PASSED tests/test_data.py::test_generator_covers_all_classes
+PASSED tests/test_data.py::test_generator_is_deterministic
+PASSED tests/test_data.py::test_inject_attack_targets_same_network
+PASSED tests/test_data.py::test_edge_features_finite
+PASSED tests/test_data.py::test_label_mapping[BENIGN-BENIGN]
+PASSED tests/test_data.py::test_label_mapping[DDoS-DDoS]
+PASSED tests/test_data.py::test_label_mapping[DoS Hulk-DoS]
+PASSED tests/test_data.py::test_label_mapping[DoS slowloris-DoS]
+PASSED tests/test_data.py::test_label_mapping[PortScan-PortScan]
+PASSED tests/test_data.py::test_label_mapping[SSH-Patator-BruteForce]
+PASSED tests/test_data.py::test_label_mapping[FTP-Patator-BruteForce]
+PASSED tests/test_data.py::test_label_mapping[Bot-Botnet]
+PASSED tests/test_data.py::test_label_mapping[Web Attack \x96 Sql Injection-WebAttack]
+PASSED tests/test_data.py::test_label_mapping[Web Attack \u2013 XSS-WebAttack]
+PASSED tests/test_data.py::test_label_mapping[Infiltration-Infiltration]
+PASSED tests/test_data.py::test_label_mapping[DrDoS_LDAP-DDoS]
+PASSED tests/test_data.py::test_label_mapping[DDOS attack-HOIC-DDoS]
+PASSED tests/test_data.py::test_label_mapping[Brute Force -Web-WebAttack]
+PASSED tests/test_data.py::test_label_mapping[scanning-PortScan]
+PASSED tests/test_data.py::test_label_mapping[password-BruteForce]
+PASSED tests/test_data.py::test_label_mapping[Infilteration-Infiltration]
+PASSED tests/test_data.py::test_label_mapping[Fuzzers-UNKNOWN]
+PASSED tests/test_data.py::test_cicflowmeter_loader
+PASSED tests/test_data.py::test_netflow_loader
+PASSED tests/test_data.py::test_canonical_csv_roundtrip
+PASSED tests/test_data.py::test_machine_learning_csv_without_ips_is_rejected
+PASSED tests/test_data.py::test_graph_builder
+PASSED tests/test_data.py::test_chronological_split_has_no_time_overlap
+PASSED tests/test_data.py::test_flowmeter_tcp_session
+PASSED tests/test_data.py::test_incident_correlation_and_firewall
+PASSED tests/test_data.py::test_drift_monitor_detects_new_network
+PASSED tests/test_models.py::test_forward_shapes_and_masking[mlp]
+PASSED tests/test_models.py::test_forward_shapes_and_masking[gcn]
+PASSED tests/test_models.py::test_forward_shapes_and_masking[gat]
+PASSED tests/test_models.py::test_forward_shapes_and_masking[egraphsage]
+PASSED tests/test_models.py::test_computation_subgraph_is_exact[mlp]
+PASSED tests/test_models.py::test_computation_subgraph_is_exact[gcn]
+PASSED tests/test_models.py::test_computation_subgraph_is_exact[gat]
+PASSED tests/test_models.py::test_computation_subgraph_is_exact[egraphsage]
+PASSED tests/test_models.py::test_batched_proba_matches_single
+PASSED tests/test_models.py::test_training_learns
+PASSED tests/test_models.py::test_explainers
+PASSED tests/test_models.py::test_permutation_shap_efficiency
+PASSED tests/test_models.py::test_experiment_outputs
+PASSED tests/test_models.py::test_detector_roundtrip
