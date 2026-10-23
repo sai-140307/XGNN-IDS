@@ -60,22 +60,22 @@ honest limit of supervised detection and the motivation for self-supervised pre-
 
 **Is it robust to an attacker who knows the model?** White-box PGD perturbs what an attacker controls in
 their own flows (rates, sizes, timing). Detection falls as the budget grows - for all models - but the
-graph models degrade much more slowly (about 94-97% of attacks still detected at ε = 1 standard deviation,
-vs ~62% for the flow-only model) because the attacker cannot hide the fan-in/fan-out structure by changing
+graph models degrade much more slowly (about 95-98% of attacks still detected at ε = 1 standard deviation,
+vs ~53% for the flow-only model) because the attacker cannot hide the fan-in/fan-out structure by changing
 their own flow features.
 
 **The Random Forest with graph statistics is as accurate as the GNN - so why a GNN?** Fair point, and the
 results show it honestly: once the graph signal is hand-engineered into per-host statistics, a Random Forest
 is a strong baseline (and generalised better zero-shot to the IoT network). The GNN's advantages are that it
-learns the relational features itself (the no-node-statistics variant still reaches ~0.95 macro-F1), it is
+learns the relational features itself (the no-node-statistics variant reaches 0.85 macro-F1, against 0.79 for the flow-only network), it is
 differentiable - which is what makes gradient explanations, counterfactuals and adversarial testing
 possible - it adapts to a new network by fine-tuning, and it is roughly 10-25x faster per window on CPU.
 
 **What happens when the network changes?** Accuracy drops - for every model - and the false alarms have a
 clear cause: periodic IoT telemetry (MQTT) looks like botnet beaconing to a model trained on an office
-network. The drift monitor catches this immediately (PSI around 0.6, far above the 0.25 retrain threshold).
+network. The drift monitor catches this immediately (PSI around 0.7, far above the 0.25 retrain threshold).
 With about four minutes of labelled local traffic, fine-tuning (plus replaying old training windows so the
-model does not forget) cuts the false-positive rate from ~70% to ~0.1% while keeping office-network accuracy.
+model does not forget) cuts the GAT false-positive rate from ~68% to ~1.5% and lifts IoT macro-F1 from 0.80 to 0.94.
 
 **Is it real-time?** Inference on a 20-second window takes milliseconds on a laptop CPU (latency and
 throughput are reported per model), far below the window length. Explanations are computed on demand

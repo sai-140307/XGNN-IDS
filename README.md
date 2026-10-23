@@ -19,43 +19,37 @@ Team: Sai Chandra Reddy (24BYB0011), N Rishi Pranav (24BYB0082).*
 <!-- RESULTS_START -->
 ## Results at a glance
 
-Measured on a chronological split (train on the past, test on the future) of 63,476 flows from the built-in
-enterprise-network simulation; full tables, method and figures in [results/RESULTS.md](results/RESULTS.md).
+Measured on a chronological split (train on the past, test on the future) of 111,261 flows from the built-in
+office-network and home Wi-Fi simulations; full tables, method and figures in [results/RESULTS.md](results/RESULTS.md).
 
-| | Flow-only model | Graph model (GCN) |
+| | Flow-only model | Graph model (GAT, default) |
 |---|---|---|
-| Macro-F1 across 8 classes | 0.939 (Random Forest) | **0.999** |
-| DDoS F1 | 0.900 | **0.997** |
-| False-positive rate on benign traffic | 4.9% | **0.10%** |
-| Attacks still detected under white-box evasion (ε = 1 std) | 62% (Flow-MLP) | **96%** |
-| Inference time per 20 s window (CPU) | 25.7 ms | **1.0 ms** |
+| Macro-F1 across 8 classes | 0.924 (Random Forest) / 0.786 (Flow-MLP) | **0.967** |
+| DDoS F1 | 0.922 | **0.998** |
+| False-positive rate on benign traffic | 3.8% | **0.26%** |
+| Attacks still detected under white-box evasion (ε = 1 std) | 53% (Flow-MLP) | **98%** |
+| Inference time per 20 s window (CPU) | 28.9 ms | **2.2 ms** |
 
 - **Explanations are measured, not assumed.** Integrated Gradients over the flow and its two hosts:
-  fidelity+ 5.8 log-odds vs 0.4 for a random explainer, 94% stability, ~60 ms per alert. For *which
-  neighbouring flows mattered*, edge Integrated Gradients reaches fidelity+ 3.3 and 90% stability, while
-  GNNExplainer (the usual choice in GNN-IDS papers) was no better than random (0.18) - so it is kept only
-  for comparison.
-- **Zero-day:** with one family never labelled, 6 of 7 families are still flagged (≥96% of their flows);
-  low-volume botnet beaconing is the one that slips through.
-- **New network:** on an unseen IoT network every model loses accuracy and the drift monitor fires
-  (PSI 0.62). Fine-tuning on ~4 minutes of local traffic cuts GCN false alarms from 72% to 0.1% while keeping
-  office-network accuracy at 0.996.
+  fidelity+ 7.2 log-odds vs 1.0 for a random explainer, 92% stability, ~200 ms per alert (SHAP: 4.5 s).
+  For *which neighbouring flows mattered*, edge Integrated Gradients reaches fidelity+ 2.6 and 93% stability,
+  while GNNExplainer (the usual choice in GNN-IDS papers) was barely better than random (0.20 vs 0.11) - so it
+  is kept only for comparison.
+- **Zero-day:** with one family never labelled, 5 of 7 families are still flagged (89-100% of their flows);
+  unseen DDoS (35%) and low-volume botnet beaconing (2%) mostly slip through.
+- **New network:** on an unseen IoT network every attack is still caught but benign false alarms jump and the
+  drift monitor fires (PSI 0.69). Fine-tuning on ~4 minutes of local traffic cuts GAT false alarms from 68%
+  to 1.5% and lifts IoT macro-F1 from 0.80 to 0.94.
+- The Random Forest given the same graph statistics is a strong baseline (0.977); the GNN is ~7x faster per
+  window and gives explanations over neighbouring flows.
 
 ![per-class F1](results/per_class_f1.png)
 
-Example of an explanation the console produces (Botnet alert):
-
-> **Botnet** detected with 100% confidence on flow `192.168.10.159:54747 -> 66.137.26.58:6667/TCP`.
-> - **Network context:** 66.137.26.58 received 12 flows from 8 distinct sources in this 20s window.
-> - **Neighbouring flows:** 9 of 299 neighbouring flows carry 80% of the structural evidence; 100% of it
->   comes from flows towards the same destination.
-> - Removing the 13 most important neighbouring flows from message passing would make it look BENIGN.
-> - **MITRE ATT&CK:** T1071 · **Response:** isolate the internal hosts, block the C2 address.
-
-More: [results/example_explanations.md](results/example_explanations.md).
+Example explanations the console produces: [results/example_explanations.md](results/example_explanations.md).
 
 *Numbers come from synthetic traffic and should not be compared with papers that use CIC-IDS2017 directly;
 the same pipeline trains on real datasets (see [docs/DATASETS.md](docs/DATASETS.md)).*
+
 <!-- RESULTS_END -->
 
 ## What it does
