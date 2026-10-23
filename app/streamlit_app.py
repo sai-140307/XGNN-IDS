@@ -18,7 +18,7 @@ import streamlit as st
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from xgnn_ids.config import ATTACK_CLASSES, CLASS_INFO, CLASSES  # noqa: E402
+from xgnn_ids.config import ATTACK_CLASSES, CLASSES  # noqa: E402
 from xgnn_ids.data.features import is_private_ip  # noqa: E402
 from xgnn_ids.data.loaders import normalise  # noqa: E402
 from xgnn_ids.data.synthetic import ATTACKS, generate_traffic, inject_attack  # noqa: E402
