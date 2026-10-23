@@ -97,6 +97,26 @@ def train_gnn(name: str, train_g: list[WindowGraph], val_g: list[WindowGraph], p
     return model, info
 
 
+def finetune_gnn(model, prep: Preprocessor, graphs: list[WindowGraph], cfg: TrainConfig, epochs: int = 15,
+                 lr: float = 1e-3, n_cls: int = len(CLASSES)):
+    """Continue training an existing model on a small set of windows (few-shot domain adaptation)."""
+    set_seed(cfg.seed)
+    model = copy.deepcopy(model)
+    opt = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=cfg.weight_decay)
+    weights = class_weights(graphs, n_cls)
+    weights = torch.where(weights > 0, weights, torch.ones_like(weights))
+    batches = [prep.tensors(b) for b in make_batches(graphs, cfg.batch_edges)]
+    for _ in range(epochs):
+        model.train()
+        random.shuffle(batches)
+        for x, ei, ea, y in batches:
+            opt.zero_grad()
+            F.cross_entropy(model(x, ei, ea), y, weight=weights, ignore_index=-1).backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            opt.step()
+    return model.eval()
+
+
 def evaluate_model(model, prep: Preprocessor, graphs: list[WindowGraph]) -> dict:
     probs, lat = predict_proba(model, prep, graphs)
     y = np.concatenate([g.y for g in graphs])

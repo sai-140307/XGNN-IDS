@@ -30,7 +30,7 @@ def sample_alerts(model, prep, graphs: list[WindowGraph], per_class: int, seed: 
 
 
 def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, background: np.ndarray,
-                        per_class: int = 8, k: int = 5, shap_nsamples: int = 150, sigma: float = 0.1,
+                        per_class: int = 8, k: int = 5, shap_nsamples: int = 200, sigma: float = 0.1,
                         log=print) -> dict:
     rng = np.random.default_rng(0)
     feat_rows, struct_rows = [], []
@@ -45,8 +45,8 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
         methods = {
             "Integrated Gradients": lambda c: integrated_gradients(c),
             "SHAP": lambda c: shap_attribution(c, background, shap_nsamples),
-            "GNNExplainer (feature mask)": lambda c: gnn_explainer(c, epochs=100)[1] if c.m > 1 else np.ones(c.edge_attr.size(1)),
-            "Random": lambda c: rng.standard_normal(c.edge_attr.size(1)),
+            "GNNExplainer (feature mask)": lambda c: gnn_explainer(c, epochs=100)[1],
+            "Random": lambda c: rng.standard_normal(len(c.z0)),
         }
         for mname, fn in methods.items():
             attr, ms = timed(fn, ctx)
@@ -65,7 +65,7 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
             rand = rng.random(ctx.m)
             for mname, mask, t in (("GNNExplainer", em, ms), ("Same-destination heuristic", heur, 0.0),
                                    ("Random", rand, 0.0)):
-                fid = structural_fidelity(ctx, mask, k=10)
+                fid = structural_fidelity(ctx, mask, frac=0.2)
                 struct_rows.append({
                     "method": mname, "class": cls, "runtime_ms": t, "neighbours": len(others), **fid,
                     "sparsity": float(1 - (mask[others] > 0.5).mean()) if mname == "GNNExplainer" else np.nan,
@@ -81,7 +81,8 @@ def evaluate_explainers(model, prep, graphs: list[WindowGraph], hops: int, backg
         out = []
         for m in df["method"].unique():
             r = {"method": m, "n": int((df["method"] == m).sum())}
-            for col in ("fidelity_plus", "fidelity_minus", "sparsity", "stability", "runtime_ms"):
+            for col in ("fidelity_plus", "fidelity_minus", "fidelity_plus_prob", "flip_rate", "sparsity", "stability",
+                        "runtime_ms"):
                 if col in g.columns.get_level_values(0):
                     r[col] = float(g.loc[m, (col, "mean")])
                     r[col + "_std"] = float(g.loc[m, (col, "std")])

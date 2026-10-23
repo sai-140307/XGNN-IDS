@@ -30,7 +30,8 @@ from . import plots
 from .data import Preprocessor
 from .metrics import markdown_table
 from .robustness import pgd_evasion, zero_day_experiment
-from .trainer import (BASELINES, evaluate_baseline, evaluate_model, predict_proba, train_baseline, train_gnn)
+from .trainer import (BASELINES, evaluate_baseline, evaluate_model, finetune_gnn, predict_proba, train_baseline,
+                      train_gnn)
 
 GNN_MODELS = ["mlp", "gcn", "gat", "egraphsage", "egraphsage_nostats"]
 DISPLAY = {**MODEL_DISPLAY, **{k: v[0] for k, v in BASELINES.items()}}
@@ -116,9 +117,11 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
         pv, _ = predict_proba(model, p, val_g)
         thresholds[name] = float(np.quantile(pv[yv >= 0].max(1), 0.05)) if len(yv) else 0.5
 
+    # SHAP background in explanation space: [flow features | source-host | destination-host] of random train flows
     rng = np.random.default_rng(0)
-    train_edges = np.vstack([prep.edge_matrix(g) for g in train_g])
-    background = train_edges[rng.choice(len(train_edges), 8, replace=False)]
+    train_z = np.vstack([np.hstack([prep.edge_matrix(g), prep.node_scaler.transform(g.x)[g.edge_index[0]],
+                                    prep.node_scaler.transform(g.x)[g.edge_index[1]]]) for g in train_g])
+    background = train_z[rng.choice(len(train_z), 8, replace=False)]
     benign_raw = np.vstack([g.edge_attr[g.y == 0] for g in train_g])
     drift = DriftMonitor.fit(benign_raw)
 
@@ -156,6 +159,28 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
         }
         for name in cross:
             log(f"  {DISPLAY[name]:<32} IoT macro-F1 {cross[name]['macro_f1']:.4f}")
+
+        # few-shot adaptation: fine-tune on the first 20% of the IoT capture (+ an equal replay sample of the
+        # original training windows against forgetting), evaluate on the last 60%
+        adapt_g, _, eval_g = chronological_split(gi, (0.2, 0.2, 0.6))
+        replay = [train_g[i] for i in rng.choice(len(train_g), min(len(train_g), len(adapt_g)), replace=False)]
+        few = {"adapt_windows": len(adapt_g), "adapt_flows": int(sum(g.num_edges for g in adapt_g)),
+               "eval_flows": int(sum(g.num_edges for g in eval_g)), "results": {}}
+        for name in [n for n in (default, "mlp") if n in trained]:
+            model, p = trained[name]
+            tuned = finetune_gnn(model, p, adapt_g + replay, cfg.train)
+            few["results"][name] = {"zero_shot": evaluate_model(model, p, eval_g),
+                                    "few_shot": evaluate_model(tuned, p, eval_g),
+                                    "enterprise_after": evaluate_model(tuned, p, test_g)}
+        if "rf_graphstats" in fitted:
+            clf, _ = train_baseline("rf_graphstats", train_g + adapt_g, prep, cfg.train.seed)
+            few["results"]["rf_graphstats"] = {"zero_shot": evaluate_baseline("rf_graphstats", fitted["rf_graphstats"], prep, eval_g),
+                                               "few_shot": evaluate_baseline("rf_graphstats", clf, prep, eval_g),
+                                               "enterprise_after": evaluate_baseline("rf_graphstats", clf, prep, test_g)}
+        report["cross_domain"]["few_shot"] = few
+        for name, v in few["results"].items():
+            log(f"  few-shot {DISPLAY[name]:<28} IoT macro-F1 {v['zero_shot']['macro_f1']:.4f} -> "
+                f"{v['few_shot']['macro_f1']:.4f}, FPR {v['zero_shot']['fpr']:.4f} -> {v['few_shot']['fpr']:.4f}")
     else:
         log("[4/8] cross-domain test skipped")
 
@@ -262,6 +287,20 @@ def results_markdown(r: dict) -> str:
             [("model", "Model", ""), ("in", "In-domain macro-F1", ".4f"), ("macro", "IoT macro-F1", ".4f"),
              ("ddos", "IoT DDoS F1", ".4f"), ("fpr", "IoT FPR", ".4f"), ("dr", "IoT detection rate", ".4f")]))
         lines.append("")
+        if "few_shot" in cd:
+            fs = cd["few_shot"]
+            lines += ["### Few-shot adaptation to the new network", "",
+                      f"Fine-tuned on the first {fs['adapt_flows']:,} IoT flows ({fs['adapt_windows']} windows, about "
+                      f"{fs['adapt_windows'] * r['config']['graph']['window_s'] / 60:.0f} min of labelled traffic) plus a "
+                      f"replay sample of the original training windows; evaluated on the last {fs['eval_flows']:,} IoT flows.", ""]
+            lines.append(markdown_table(
+                [{"model": L.get(k, k), "zm": v["zero_shot"]["macro_f1"], "zf": v["zero_shot"]["fpr"],
+                  "fm": v["few_shot"]["macro_f1"], "ff": v["few_shot"]["fpr"],
+                  "em": v["enterprise_after"]["macro_f1"]} for k, v in fs["results"].items()],
+                [("model", "Model", ""), ("zm", "IoT macro-F1 before", ".4f"), ("zf", "IoT FPR before", ".4f"),
+                 ("fm", "IoT macro-F1 after", ".4f"), ("ff", "IoT FPR after", ".4f"),
+                 ("em", "Enterprise macro-F1 after", ".4f")]))
+            lines.append("")
     if "zero_day" in r:
         lines += ["## 3. Zero-day test (leave-one-attack-out)", "",
                   f"Model: {L[r['zero_day']['model']]}. The hidden family is present in the training traffic but "
@@ -284,16 +323,22 @@ def results_markdown(r: dict) -> str:
     if "xai" in r:
         x = r["xai"]
         lines += ["## 5. Explanation quality", "",
-                  f"{x['n_alerts']} correctly detected attack flows, top-{x['top_k']} features. "
-                  "Fidelity+ (higher = the highlighted features are necessary), Fidelity- (lower = they are "
-                  "sufficient), sparsity (higher = more concise), stability (Jaccard of top-k under noise).", "",
-                  "### Feature attribution", ""]
-        cols = [("method", "Method", ""), ("fidelity_plus", "Fidelity+", ".4f"),
-                ("fidelity_minus", "Fidelity-", ".4f"), ("sparsity", "Sparsity", ".3f"),
-                ("stability", "Stability", ".3f"), ("runtime_ms", "Runtime ms", ".1f")]
+                  f"{x['n_alerts']} correctly detected attack flows. Feature explainers rank the {x['top_k']} most "
+                  "important items of the explanation space (27 flow features + 11 statistics of each endpoint host). "
+                  "Fidelity is measured in log-odds of the explained class: Fidelity+ = drop when the top items are reset "
+                  "to the training mean (higher = they are necessary), Fidelity- = drop when *only* they are kept "
+                  "(lower = they are sufficient). Flip rate = share of alerts whose class changes when the top items are "
+                  "reset. Sparsity = share of items not needed for 80% of the attribution mass. Stability = top-k "
+                  "overlap (Jaccard) under small input noise.", "", "### Feature attribution", ""]
+        cols = [("method", "Method", ""), ("fidelity_plus", "Fidelity+ (log-odds)", ".3f"),
+                ("fidelity_minus", "Fidelity- (log-odds)", ".3f"), ("flip_rate", "Flip rate", ".2f"),
+                ("sparsity", "Sparsity", ".3f"), ("stability", "Stability", ".3f"), ("runtime_ms", "Runtime ms", ".1f")]
         lines.append(markdown_table(x["feature_explainers"], cols))
-        lines += ["", "### Structural explanation (which neighbouring flows matter, top-10 flows)", ""]
-        lines.append(markdown_table(x["structural_explainers"], cols))
+        lines += ["", "### Structural explanation (top 20% of neighbouring flows removed / kept)", ""]
+        scols = [("method", "Method", ""), ("fidelity_plus", "Fidelity+ (log-odds)", ".3f"),
+                 ("fidelity_minus", "Fidelity- (log-odds)", ".3f"), ("sparsity", "Sparsity", ".3f"),
+                 ("stability", "Stability", ".3f"), ("runtime_ms", "Runtime ms", ".1f")]
+        lines.append(markdown_table(x["structural_explainers"], scols))
         lines += ["", "Example narratives: [example_explanations.md](example_explanations.md)", ""]
     lines += ["## Training curves", "", "![training curves](training_curves.png)", ""]
     return "\n".join(lines)
