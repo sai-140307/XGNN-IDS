@@ -99,12 +99,12 @@ def map_label(raw: str) -> str:
 
 def detect_format(columns) -> str:
     norm = {_norm(c) for c in columns}
+    if {"src_ip", "dst_ip", "ts"} <= set(columns):
+        return "canonical"
     if {"ipv4srcaddr", "ipv4dstaddr"} <= norm:
         return "netflow"
     if {"srcip", "dstip"} <= norm or {"sourceip", "destinationip"} <= norm:
         return "cicflowmeter"
-    if {"src_ip", "dst_ip", "ts"} <= set(columns):
-        return "canonical"
     raise ValueError(
         "Unrecognised flow CSV: need source/destination IP columns "
         "(CICFlowMeter 'Src IP'/'Dst IP', NetFlow 'IPV4_SRC_ADDR', or canonical 'src_ip'). "

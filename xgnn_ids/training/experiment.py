@@ -71,6 +71,9 @@ def run_experiment(data_paths=None, out_dir="results", models_dir="models", quic
         source = ", ".join(Path(p).name for p in data_paths)
     graphs = build_graphs(df, cfg.graph)
     train_g, val_g, test_g = chronological_split(graphs, cfg.split)
+    if not (train_g and val_g and test_g):
+        raise ValueError(f"only {len(graphs)} graph windows - too little data for a train/val/test split. "
+                         f"Provide a longer capture (at least ~5 minutes) or lower GraphConfig.window_s.")
     data_info = {"source": source, "flows": len(df), "all": graph_summary(graphs), "train": graph_summary(train_g),
                  "val": graph_summary(val_g), "test": graph_summary(test_g)}
     log(f"  {len(df):,} flows -> {len(graphs)} windows (train {len(train_g)}, val {len(val_g)}, test {len(test_g)})")
