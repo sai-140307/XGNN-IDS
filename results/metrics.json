@@ -239,10 +239,10 @@
     "support": 3450
    },
    "ddos_f1": 0.8554289142171566,
-   "latency_ms_per_window": 0.19762216666979132,
-   "throughput_flows_per_s": 3907287.7282885327,
+   "latency_ms_per_window": 0.18374566667173692,
+   "throughput_flows_per_s": 4202366.677012027,
    "params": 6472,
-   "train_seconds": 4.692456232000012,
+   "train_seconds": 5.1452461570000025,
    "val_macro_f1": 0.8024231138048311
   },
   "gcn": {
@@ -391,10 +391,10 @@
     "support": 3450
    },
    "ddos_f1": 0.9969490047944211,
-   "latency_ms_per_window": 1.0835103888903557,
-   "throughput_flows_per_s": 712652.757725247,
+   "latency_ms_per_window": 1.0330823888880205,
+   "throughput_flows_per_s": 747439.5798168664,
    "params": 27464,
-   "train_seconds": 6.732129204000017,
+   "train_seconds": 7.400366111000011,
    "val_macro_f1": 0.9994771004558693
   },
   "gat": {
@@ -543,10 +543,10 @@
     "support": 3450
    },
    "ddos_f1": 0.9959325973271353,
-   "latency_ms_per_window": 2.162941055554294,
-   "throughput_flows_per_s": 356998.47884610266,
+   "latency_ms_per_window": 2.085746666668658,
+   "throughput_flows_per_s": 370211.14740649046,
    "params": 48968,
-   "train_seconds": 9.669182561999975,
+   "train_seconds": 10.28538383,
    "val_macro_f1": 0.9993538747301657
   },
   "egraphsage": {
@@ -695,10 +695,10 @@
     "support": 3450
    },
    "ddos_f1": 0.9934392768625164,
-   "latency_ms_per_window": 1.5942377222223234,
-   "throughput_flows_per_s": 484348.51082954404,
+   "latency_ms_per_window": 1.5547518888910064,
+   "throughput_flows_per_s": 496649.4475317523,
    "params": 73416,
-   "train_seconds": 7.037097260999985,
+   "train_seconds": 8.118800723999982,
    "val_macro_f1": 0.9994153720427754
   },
   "egraphsage_nostats": {
@@ -847,10 +847,10 @@
     "support": 3450
    },
    "ddos_f1": 0.9915377881529034,
-   "latency_ms_per_window": 1.589444277777198,
-   "throughput_flows_per_s": 485809.2085785633,
+   "latency_ms_per_window": 1.5476388333344933,
+   "throughput_flows_per_s": 498932.08288330486,
    "params": 72776,
-   "train_seconds": 13.476631612000006,
+   "train_seconds": 15.777330696000007,
    "val_macro_f1": 0.8696205742092906
   },
   "rf": {
@@ -999,9 +999,9 @@
     "support": 3450
    },
    "ddos_f1": 0.900132762944387,
-   "latency_ms_per_window": 27.17299722221848,
-   "throughput_flows_per_s": 28416.691038973462,
-   "train_seconds": 3.069604324000011
+   "latency_ms_per_window": 25.661500000002963,
+   "throughput_flows_per_s": 30090.472757499658,
+   "train_seconds": 3.2275672320000126
   },
   "rf_graphstats": {
    "n": 13899,
@@ -1149,9 +1149,9 @@
     "support": 3450
    },
    "ddos_f1": 0.9910857810901651,
-   "latency_ms_per_window": 15.818912388891388,
-   "throughput_flows_per_s": 48812.87965213778,
-   "train_seconds": 2.431688514000001
+   "latency_ms_per_window": 12.666127444447284,
+   "throughput_flows_per_s": 60963.12152655448,
+   "train_seconds": 2.5289270680000016
   },
   "hgb": {
    "n": 13899,
@@ -1299,14 +1299,14 @@
     "support": 3450
    },
    "ddos_f1": 0.9005094396164219,
-   "latency_ms_per_window": 7.157810888885921,
-   "throughput_flows_per_s": 107877.48917278963,
-   "train_seconds": 3.0889574930000094
+   "latency_ms_per_window": 8.190624833334128,
+   "throughput_flows_per_s": 94274.4518738192,
+   "train_seconds": 3.1193841390000046
   }
  },
  "training": {
   "mlp": {
-   "train_seconds": 4.692456232000012,
+   "train_seconds": 5.1452461570000025,
    "epochs_run": 60,
    "best_val_macro_f1": 0.8024231138048311,
    "hparams": {
@@ -1323,7 +1323,7 @@
    }
   },
   "gcn": {
-   "train_seconds": 6.732129204000017,
+   "train_seconds": 7.400366111000011,
    "epochs_run": 41,
    "best_val_macro_f1": 0.9994771004558693,
    "hparams": {
@@ -1340,7 +1340,7 @@
    }
   },
   "gat": {
-   "train_seconds": 9.669182561999975,
+   "train_seconds": 10.28538383,
    "epochs_run": 33,
    "best_val_macro_f1": 0.9993538747301657,
    "hparams": {
@@ -1357,7 +1357,7 @@
    }
   },
   "egraphsage": {
-   "train_seconds": 7.037097260999985,
+   "train_seconds": 8.118800723999982,
    "epochs_run": 30,
    "best_val_macro_f1": 0.9994153720427754,
    "hparams": {
@@ -1374,7 +1374,7 @@
    }
   },
   "egraphsage_nostats": {
-   "train_seconds": 13.476631612000006,
+   "train_seconds": 15.777330696000007,
    "epochs_run": 58,
    "best_val_macro_f1": 0.8696205742092906,
    "hparams": {
@@ -1546,14 +1546,14 @@
      "support": 17810
     },
     "ddos_f1": 0.8646042587384491,
-    "latency_ms_per_window": 0.19563011666624183,
-    "throughput_flows_per_s": 3961131.7514507584
+    "latency_ms_per_window": 0.1819476833323582,
+    "throughput_flows_per_s": 4259008.152641056
    },
    "gcn": {
     "n": 46495,
-    "accuracy": 0.72145391977632,
-    "macro_f1": 0.6713609547335064,
-    "weighted_f1": 0.7611907435459964,
+    "accuracy": 0.7214324120873212,
+    "macro_f1": 0.6711973583412585,
+    "weighted_f1": 0.7611641402999151,
     "fpr": 0.7217941118356056,
     "detection_rate": 0.9983392948390394,
     "per_class": {
@@ -1594,15 +1594,15 @@
       "support": 711
      },
      "WebAttack": {
-      "precision": 0.37777777777777777,
-      "recall": 0.4372163388804841,
-      "f1": 0.4053295932678822,
+      "precision": 0.3769633507853403,
+      "recall": 0.4357034795763994,
+      "f1": 0.40421052631578946,
       "support": 661
      },
      "Infiltration": {
-      "precision": 0.9946277820414429,
+      "precision": 0.9942462600690449,
       "recall": 0.9889355207935903,
-      "f1": 0.9917734838339392,
+      "f1": 0.991583779648049,
       "support": 2621
      }
     },
@@ -1674,8 +1674,8 @@
       0,
       96,
       0,
-      289,
-      1
+      288,
+      2
      ],
      [
       10,
@@ -1695,8 +1695,8 @@
      "support": 17810
     },
     "ddos_f1": 0.9962471293340055,
-    "latency_ms_per_window": 1.097435349997511,
-    "throughput_flows_per_s": 706116.0064403104
+    "latency_ms_per_window": 1.0634103499967296,
+    "throughput_flows_per_s": 728708.9754853805
    },
    "gat": {
     "n": 46495,
@@ -1844,8 +1844,8 @@
      "support": 17810
     },
     "ddos_f1": 0.9952045133991537,
-    "latency_ms_per_window": 2.1508828499970414,
-    "throughput_flows_per_s": 360278.4162176627
+    "latency_ms_per_window": 2.0882162833316897,
+    "throughput_flows_per_s": 371090.23277527036
    },
    "egraphsage": {
     "n": 46495,
@@ -1993,8 +1993,8 @@
      "support": 17810
     },
     "ddos_f1": 0.9738744659875124,
-    "latency_ms_per_window": 1.5654089666673106,
-    "throughput_flows_per_s": 495025.05937246
+    "latency_ms_per_window": 1.6006567666678961,
+    "throughput_flows_per_s": 484124.1937706725
    },
    "egraphsage_nostats": {
     "n": 46495,
@@ -2142,8 +2142,8 @@
      "support": 17810
     },
     "ddos_f1": 0.22749273959341723,
-    "latency_ms_per_window": 1.5580834166655677,
-    "throughput_flows_per_s": 497352.48984618223
+    "latency_ms_per_window": 1.5963296333334636,
+    "throughput_flows_per_s": 485436.49787950236
    },
    "rf": {
     "n": 46495,
@@ -2291,8 +2291,8 @@
      "support": 17810
     },
     "ddos_f1": 0.8869362074915713,
-    "latency_ms_per_window": 23.847024266668864,
-    "throughput_flows_per_s": 32495.319248270847
+    "latency_ms_per_window": 21.916593366667787,
+    "throughput_flows_per_s": 35357.532701464974
    },
    "rf_graphstats": {
     "n": 46495,
@@ -2440,8 +2440,8 @@
      "support": 17810
     },
     "ddos_f1": 0.983558377464164,
-    "latency_ms_per_window": 15.531288133332074,
-    "throughput_flows_per_s": 49893.90834901834
+    "latency_ms_per_window": 12.2598217833333,
+    "throughput_flows_per_s": 63207.82474343409
    },
    "hgb": {
     "n": 46495,
@@ -2589,8 +2589,8 @@
      "support": 17810
     },
     "ddos_f1": 0.888692152917505,
-    "latency_ms_per_window": 6.723176066665341,
-    "throughput_flows_per_s": 115260.50470533359
+    "latency_ms_per_window": 7.469994933331255,
+    "throughput_flows_per_s": 103737.24126759099
    }
   },
   "drift_psi_in_domain": 0.0062920880320773385,
@@ -2603,9 +2603,9 @@
     "gcn": {
      "zero_shot": {
       "n": 28063,
-      "accuracy": 0.7200228058297402,
-      "macro_f1": 0.6736911824009137,
-      "weighted_f1": 0.7595776351957068,
+      "accuracy": 0.7199871717207711,
+      "macro_f1": 0.6734859853608663,
+      "weighted_f1": 0.7595358178011454,
       "fpr": 0.7185786356657161,
       "detection_rate": 0.9986803906043811,
       "per_class": {
@@ -2646,15 +2646,15 @@
         "support": 402
        },
        "WebAttack": {
-        "precision": 0.34210526315789475,
-        "recall": 0.4678030303030303,
-        "f1": 0.3952,
+        "precision": 0.34119278779472956,
+        "recall": 0.4659090909090909,
+        "f1": 0.3939151321056846,
         "support": 528
        },
        "Infiltration": {
-        "precision": 0.9905865314989138,
+        "precision": 0.9898697539797395,
         "recall": 0.9855907780979827,
-        "f1": 0.9880823401950163,
+        "f1": 0.9877256317689531,
         "support": 1388
        }
       },
@@ -2726,8 +2726,8 @@
         0,
         95,
         0,
-        247,
-        1
+        246,
+        2
        ],
        [
         6,
@@ -2747,21 +2747,21 @@
        "support": 10696
       },
       "ddos_f1": 0.9941357162803686,
-      "latency_ms_per_window": 1.0624596944437157,
-      "throughput_flows_per_s": 733701.0352999077
+      "latency_ms_per_window": 1.077914888891011,
+      "throughput_flows_per_s": 723181.1952980609
      },
      "few_shot": {
       "n": 28063,
-      "accuracy": 0.9682143747995582,
-      "macro_f1": 0.827629348357348,
-      "weighted_f1": 0.9636431545825033,
+      "accuracy": 0.9681787406905891,
+      "macro_f1": 0.827410335787143,
+      "weighted_f1": 0.9635872544762916,
       "fpr": 0.0010967317394165387,
-      "detection_rate": 0.9902876748482449,
+      "detection_rate": 0.9902348904724202,
       "per_class": {
        "BENIGN": {
-        "precision": 0.9801980198019802,
+        "precision": 0.980092542774131,
         "recall": 0.9989032682605835,
-        "f1": 0.9894622487778382,
+        "f1": 0.9894085057845853,
         "support": 9118
        },
        "DDoS": {
@@ -2783,9 +2783,9 @@
         "support": 2760
        },
        "BruteForce": {
-        "precision": 0.845222072678331,
+        "precision": 0.8463611859838275,
         "recall": 0.8475033738191633,
-        "f1": 0.8463611859838275,
+        "f1": 0.8469318948078219,
         "support": 741
        },
        "Botnet": {
@@ -2795,15 +2795,15 @@
         "support": 402
        },
        "WebAttack": {
-        "precision": 0.6763636363636364,
-        "recall": 0.3522727272727273,
-        "f1": 0.46326276463262767,
+        "precision": 0.6751824817518248,
+        "recall": 0.3503787878787879,
+        "f1": 0.4613466334164589,
         "support": 528
        },
        "Infiltration": {
-        "precision": 0.9801699716713881,
+        "precision": 0.9794762915782024,
         "recall": 0.9971181556195965,
-        "f1": 0.9885714285714285,
+        "f1": 0.988218493395216,
         "support": 1388
        }
       },
@@ -2859,11 +2859,11 @@
         0
        ],
        [
-        160,
+        161,
         0,
         0,
         0,
-        115,
+        114,
         115,
         0,
         12
@@ -2875,8 +2875,8 @@
         0,
         0,
         0,
-        186,
-        6
+        185,
+        7
        ],
        [
         4,
@@ -2896,8 +2896,8 @@
        "support": 10696
       },
       "ddos_f1": 0.9979441173722082,
-      "latency_ms_per_window": 1.0748617777775533,
-      "throughput_flows_per_s": 725235.3687648795
+      "latency_ms_per_window": 1.0731749444422196,
+      "throughput_flows_per_s": 726375.3051772333
      },
      "enterprise_after": {
       "n": 13899,
@@ -3045,8 +3045,8 @@
        "support": 3450
       },
       "ddos_f1": 0.9951972056469218,
-      "latency_ms_per_window": 1.061758777775405,
-      "throughput_flows_per_s": 727252.4445566712
+      "latency_ms_per_window": 1.0387913333321168,
+      "throughput_flows_per_s": 743331.8337281445
      }
     },
     "mlp": {
@@ -3196,8 +3196,8 @@
        "support": 10696
       },
       "ddos_f1": 0.8668425996332245,
-      "latency_ms_per_window": 0.1923043333367976,
-      "throughput_flows_per_s": 4053615.247517745
+      "latency_ms_per_window": 0.18071736110572248,
+      "throughput_flows_per_s": 4313519.038836241
      },
      "few_shot": {
       "n": 28063,
@@ -3345,8 +3345,8 @@
        "support": 10696
       },
       "ddos_f1": 0.9069830631283399,
-      "latency_ms_per_window": 0.18845452777801106,
-      "throughput_flows_per_s": 4136423.7143509663
+      "latency_ms_per_window": 0.17864302777799898,
+      "throughput_flows_per_s": 4363605.943504847
      },
      "enterprise_after": {
       "n": 13899,
@@ -3494,8 +3494,8 @@
        "support": 3450
       },
       "ddos_f1": 0.8556715379262352,
-      "latency_ms_per_window": 0.20206677777739263,
-      "throughput_flows_per_s": 3821343.989150587
+      "latency_ms_per_window": 0.18383055555501768,
+      "throughput_flows_per_s": 4200426.117058483
      }
     },
     "rf_graphstats": {
@@ -3645,8 +3645,8 @@
        "support": 10696
       },
       "ddos_f1": 0.9739273625468851,
-      "latency_ms_per_window": 15.628021444442197,
-      "throughput_flows_per_s": 49880.13233466619
+      "latency_ms_per_window": 12.382823694445555,
+      "throughput_flows_per_s": 62952.344070556625
      },
      "few_shot": {
       "n": 28063,
@@ -3794,8 +3794,8 @@
        "support": 10696
       },
       "ddos_f1": 0.9993451824134705,
-      "latency_ms_per_window": 15.761462916667629,
-      "throughput_flows_per_s": 49457.8315413497
+      "latency_ms_per_window": 12.813761083333159,
+      "throughput_flows_per_s": 60835.20464508336
      },
      "enterprise_after": {
       "n": 13899,
@@ -3943,8 +3943,8 @@
        "support": 3450
       },
       "ddos_f1": 0.9959302325581395,
-      "latency_ms_per_window": 16.072806722222467,
-      "throughput_flows_per_s": 48041.806263933926
+      "latency_ms_per_window": 13.23104922222266,
+      "throughput_flows_per_s": 58360.19908154735
      }
     }
    }
@@ -3961,7 +3961,7 @@
     "detected": 0.9649275362318841,
     "benign_false_alarm": 0.03333333333333333,
     "most_common_prediction": "DoS",
-    "threshold": 0.9307831525802612
+    "threshold": 0.9307830929756165
    },
    {
     "unseen_class": "DoS",
@@ -3991,7 +3991,7 @@
     "detected": 1.0,
     "benign_false_alarm": 0.03367521367521367,
     "most_common_prediction": "DoS",
-    "threshold": 0.8968780636787415
+    "threshold": 0.8968815207481384
    },
    {
     "unseen_class": "Botnet",
@@ -4076,7 +4076,7 @@
    },
    {
     "eps": 2.0,
-    "detection_rate": 0.7890421170331718,
+    "detection_rate": 0.7891663560690769,
     "attack_flows": 8049
    }
   ],
@@ -4103,7 +4103,7 @@
    },
    {
     "eps": 2.0,
-    "detection_rate": 0.7118896757361163,
+    "detection_rate": 0.7117654367002112,
     "attack_flows": 8049
    }
   ],
@@ -4140,98 +4140,112 @@
    {
     "method": "Integrated Gradients",
     "n": 56,
-    "fidelity_plus": 5.80637148737149,
-    "fidelity_plus_std": 4.04812198035526,
-    "fidelity_minus": 1.4246149991376857,
-    "fidelity_minus_std": 1.1358713043242203,
-    "fidelity_plus_prob": 0.34273162215790115,
-    "fidelity_plus_prob_std": 0.3847831185387391,
+    "fidelity_plus": 5.806288202428066,
+    "fidelity_plus_std": 4.048021013173438,
+    "fidelity_minus": 1.4243785887974645,
+    "fidelity_minus_std": 1.1360655276856964,
+    "fidelity_plus_prob": 0.34268174580315,
+    "fidelity_plus_prob_std": 0.3847712646250468,
     "flip_rate": 0.2857142857142857,
     "flip_rate_std": 0.4558423058385518,
     "sparsity": 0.7915451895043731,
     "sparsity_std": 0.07034312133452351,
     "stability": 0.9421768707482993,
     "stability_std": 0.136726847908993,
-    "runtime_ms": 56.65350408928558,
-    "runtime_ms_std": 38.966954547797485
+    "runtime_ms": 61.46817983928393,
+    "runtime_ms_std": 42.680954934672776
    },
    {
     "method": "SHAP",
     "n": 56,
-    "fidelity_plus": 4.295057947840941,
-    "fidelity_plus_std": 4.291086751672753,
-    "fidelity_minus": 2.534840415857599,
-    "fidelity_minus_std": 1.5317153678056719,
-    "fidelity_plus_prob": 0.2239794439124775,
-    "fidelity_plus_prob_std": 0.3499701881639339,
+    "fidelity_plus": 4.294947493291001,
+    "fidelity_plus_std": 4.291006966651432,
+    "fidelity_minus": 2.534505039455309,
+    "fidelity_minus_std": 1.531378396520882,
+    "fidelity_plus_prob": 0.22395665155532438,
+    "fidelity_plus_prob_std": 0.3499699079315391,
     "flip_rate": 0.16071428571428573,
     "flip_rate_std": 0.37059096364814714,
     "sparsity": 0.8709912536443148,
     "sparsity_std": 0.015126161781556995,
     "stability": 0.6310941043083901,
     "stability_std": 0.2518410238752899,
-    "runtime_ms": 1231.5201913571434,
-    "runtime_ms_std": 804.7645899597853
+    "runtime_ms": 1313.9259862678573,
+    "runtime_ms_std": 862.0862090421709
    },
    {
     "method": "GNNExplainer (feature mask)",
     "n": 56,
-    "fidelity_plus": 3.2219083513669404,
-    "fidelity_plus_std": 2.801372499657262,
-    "fidelity_minus": 3.0176218255427,
-    "fidelity_minus_std": 2.2499144799300095,
-    "fidelity_plus_prob": 0.14214605518749782,
-    "fidelity_plus_prob_std": 0.2689263522124423,
+    "fidelity_plus": 3.225398119008641,
+    "fidelity_plus_std": 2.804430129023027,
+    "fidelity_minus": 3.0175548100063776,
+    "fidelity_minus_std": 2.249980970100779,
+    "fidelity_plus_prob": 0.1429654782904046,
+    "fidelity_plus_prob_std": 0.2697815780629317,
     "flip_rate": 0.16071428571428573,
     "flip_rate_std": 0.37059096364814714,
-    "sparsity": 0.4293002915451895,
-    "sparsity_std": 0.11055152306523529,
-    "stability": 0.9260204081632653,
-    "stability_std": 0.15647098737891688,
-    "runtime_ms": 406.33404832142713,
-    "runtime_ms_std": 148.4655709374232
+    "sparsity": 0.4289358600583091,
+    "sparsity_std": 0.11003842916134329,
+    "stability": 0.9217687074829932,
+    "stability_std": 0.16655619627163895,
+    "runtime_ms": 388.72810248214455,
+    "runtime_ms_std": 151.5039332977437
    },
    {
     "method": "Random",
     "n": 56,
-    "fidelity_plus": 0.441334280811117,
-    "fidelity_plus_std": 0.9318334247707866,
-    "fidelity_minus": 6.130121596384128,
-    "fidelity_minus_std": 4.410366485365011,
-    "fidelity_plus_prob": 0.001522562333515712,
-    "fidelity_plus_prob_std": 0.006671868190094237,
+    "fidelity_plus": 0.44097730730441376,
+    "fidelity_plus_std": 0.9318907121227552,
+    "fidelity_minus": 6.130036837290114,
+    "fidelity_minus_std": 4.410782264441872,
+    "fidelity_plus_prob": 0.0015216278178351267,
+    "fidelity_plus_prob_std": 0.006671973139281451,
     "flip_rate": 0.0,
     "flip_rate_std": 0.0,
     "sparsity": 0.47667638483965014,
     "sparsity_std": 0.03680236426923005,
     "stability": 0.06448412698412699,
     "stability_std": 0.08276017419374954,
-    "runtime_ms": 0.0545246250029306,
-    "runtime_ms_std": 0.005326193281561789
+    "runtime_ms": 0.05945257142566821,
+    "runtime_ms_std": 0.009341613655790518
    }
   ],
   "structural_explainers": [
    {
+    "method": "Edge Integrated Gradients",
+    "n": 56,
+    "fidelity_plus": 3.2525154974653456,
+    "fidelity_plus_std": 4.182127016018223,
+    "fidelity_minus": 1.9731890255519187,
+    "fidelity_minus_std": 2.67537602325308,
+    "sparsity": 0.659078354865468,
+    "sparsity_std": 0.2786932913020632,
+    "stability": 0.9035072070786356,
+    "stability_std": 0.1409975473396396,
+    "runtime_ms": 67.97879062499541,
+    "runtime_ms_std": 46.587154166993365
+   },
+   {
     "method": "GNNExplainer",
     "n": 56,
-    "fidelity_plus": 0.18382933969795162,
-    "fidelity_plus_std": 0.36934516287923275,
-    "fidelity_minus": 3.442641522284693,
-    "fidelity_minus_std": 3.897603068891229,
-    "sparsity": 0.4665676602563867,
-    "sparsity_std": 0.05524913001493774,
+    "fidelity_plus": 0.18082033240165948,
+    "fidelity_plus_std": 0.3601674638038083,
+    "fidelity_minus": 3.443286896952972,
+    "fidelity_minus_std": 3.890125299931802,
+    "sparsity": 0.5646772232679563,
+    "sparsity_std": 0.04342819219769861,
     "stability": 0.10293503366258784,
     "stability_std": 0.09803571236166359,
-    "runtime_ms": 403.54107824999784,
-    "runtime_ms_std": 148.48985613072452
+    "runtime_ms": 389.9238428571447,
+    "runtime_ms_std": 151.22804590929871
    },
    {
     "method": "Same-destination heuristic",
     "n": 56,
-    "fidelity_plus": 2.3509612621712686,
-    "fidelity_plus_std": 3.951681920544951,
-    "fidelity_minus": 1.5392310156636657,
-    "fidelity_minus_std": 2.215152954717075,
+    "fidelity_plus": 2.351166733790798,
+    "fidelity_plus_std": 3.951620293562335,
+    "fidelity_minus": 1.5393689370278119,
+    "fidelity_minus_std": 2.2144583540489524,
     "sparsity": NaN,
     "sparsity_std": NaN,
     "stability": NaN,
@@ -4242,10 +4256,10 @@
    {
     "method": "Random",
     "n": 56,
-    "fidelity_plus": 0.21478786602912908,
-    "fidelity_plus_std": 0.6624679255200117,
-    "fidelity_minus": 2.911894008139942,
-    "fidelity_minus_std": 3.2970236042509518,
+    "fidelity_plus": 0.2151370036240249,
+    "fidelity_plus_std": 0.6625237401642547,
+    "fidelity_minus": 2.912512535777875,
+    "fidelity_minus_std": 3.296395690450269,
     "sparsity": NaN,
     "sparsity_std": NaN,
     "stability": NaN,
@@ -4257,45 +4271,45 @@
   "feature_fidelity_by_class": [
    {
     "class": "Botnet",
-    "GNNExplainer (feature mask)": 1.5924,
-    "Integrated Gradients": 2.4027,
-    "SHAP": 1.464
+    "GNNExplainer (feature mask)": 1.5922,
+    "Integrated Gradients": 2.4024,
+    "SHAP": 1.4642
    },
    {
     "class": "BruteForce",
-    "GNNExplainer (feature mask)": 3.4296,
-    "Integrated Gradients": 7.5322,
-    "SHAP": 1.9919
+    "GNNExplainer (feature mask)": 3.4297,
+    "Integrated Gradients": 7.5305,
+    "SHAP": 1.9917
    },
    {
     "class": "DDoS",
-    "GNNExplainer (feature mask)": 1.0693,
-    "Integrated Gradients": 1.374,
-    "SHAP": 0.6165
+    "GNNExplainer (feature mask)": 1.0701,
+    "Integrated Gradients": 1.3746,
+    "SHAP": 0.6164
    },
    {
     "class": "DoS",
-    "GNNExplainer (feature mask)": 9.1303,
-    "Integrated Gradients": 13.7725,
-    "SHAP": 13.6624
+    "GNNExplainer (feature mask)": 9.1295,
+    "Integrated Gradients": 13.773,
+    "SHAP": 13.6622
    },
    {
     "class": "Infiltration",
-    "GNNExplainer (feature mask)": 0.956,
-    "Integrated Gradients": 2.605,
-    "SHAP": 1.6167
+    "GNNExplainer (feature mask)": 0.9566,
+    "Integrated Gradients": 2.6056,
+    "SHAP": 1.6169
    },
    {
     "class": "PortScan",
-    "GNNExplainer (feature mask)": 3.0166,
-    "Integrated Gradients": 5.9758,
-    "SHAP": 5.6592
+    "GNNExplainer (feature mask)": 3.0161,
+    "Integrated Gradients": 5.9763,
+    "SHAP": 5.6588
    },
    {
     "class": "WebAttack",
-    "GNNExplainer (feature mask)": 3.3592,
-    "Integrated Gradients": 6.9824,
-    "SHAP": 5.0548
+    "GNNExplainer (feature mask)": 3.3837,
+    "Integrated Gradients": 6.9817,
+    "SHAP": 5.0544
    }
   ],
   "n_alerts": 56,
@@ -4317,14 +4331,14 @@
     "label": "DDoS",
     "confidence": 0.9998369216918945,
     "probs": {
-     "BENIGN": 3.355191074660979e-05,
+     "BENIGN": 3.3556196285644546e-05,
      "DDoS": 0.9998369216918945,
-     "DoS": 1.8400512544758385e-06,
-     "PortScan": 9.217180377163459e-06,
-     "BruteForce": 1.1347005113293562e-07,
-     "Botnet": 3.850470307042997e-07,
-     "WebAttack": 0.0001025161036523059,
-     "Infiltration": 1.5477588021894917e-05
+     "DoS": 1.839056608332612e-06,
+     "PortScan": 9.212689292326104e-06,
+     "BruteForce": 1.1352016571208878e-07,
+     "Botnet": 3.853085956961877e-07,
+     "WebAttack": 0.00010256295354338363,
+     "Infiltration": 1.547001738799736e-05
     }
    },
    "subgraph": {
@@ -4336,123 +4350,65 @@
      {
       "feature": "src:no_resp_out_ratio",
       "label": "Source host: share of outbound flows without response",
-      "attribution": 0.0002550700446590781,
+      "attribution": 0.00025518544134683907,
       "value": "50%",
       "scope": "source host"
      },
      {
       "feature": "port_registered",
       "label": "Flow: registered port (1024-49151)",
-      "attribution": -0.0002290068514412269,
+      "attribution": -0.00022911091218702495,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "no_response",
       "label": "Flow: no response from destination",
-      "attribution": 0.0001146215945482254,
+      "attribution": 0.00011467908916529268,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "src:log_out_bytes",
       "label": "Source host: bytes sent",
-      "attribution": -8.491970947943628e-05,
+      "attribution": -8.496992813888937e-05,
       "value": "11,856 B",
       "scope": "source host"
      },
      {
       "feature": "src:log_out_dports",
       "label": "Source host: distinct destination ports used",
-      "attribution": 8.486070873914286e-05,
+      "attribution": 8.487964078085497e-05,
       "value": "2",
       "scope": "source host"
      },
      {
       "feature": "log_syn",
       "label": "Flow: syn flag count",
-      "attribution": -7.436593296006322e-05,
+      "attribution": -7.438153261318803e-05,
       "value": "0",
       "scope": "flow"
      },
      {
       "feature": "port_web",
       "label": "Flow: destination port is web (80/443/8080)",
-      "attribution": -7.411294063786045e-05,
+      "attribution": -7.415972504531965e-05,
       "value": "no",
       "scope": "flow"
      },
      {
       "feature": "src:is_private",
       "label": "Source host: private (internal) address",
-      "attribution": 6.108573143137619e-05,
-      "value": "no",
-      "scope": "source host"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "bwd_fwd_byte_ratio",
-      "label": "Flow: response/request byte ratio",
-      "attribution": 0.2930012345314026,
-      "value": "0.00x",
-      "scope": "flow"
-     },
-     {
-      "feature": "log_bwd_pkts",
-      "label": "Flow: backward (response) packets",
-      "attribution": 0.20499132573604584,
-      "value": "0",
-      "scope": "flow"
-     },
-     {
-      "feature": "log_bwd_bytes",
-      "label": "Flow: backward (response) bytes",
-      "attribution": 0.05376557260751724,
-      "value": "0.00 B",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_in_bytes",
-      "label": "Source host: bytes received",
-      "attribution": 0.052891768515110016,
-      "value": "49 B",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_in_bytes",
-      "label": "Destination host: bytes received",
-      "attribution": 0.052891768515110016,
-      "value": "728,238 B",
-      "scope": "destination host"
-     },
-     {
-      "feature": "log_ack",
-      "label": "Flow: ack flag count",
-      "attribution": 0.052467167377471924,
-      "value": "0",
-      "scope": "flow"
-     },
-     {
-      "feature": "dst:is_private",
-      "label": "Destination host: private (internal) address",
-      "attribution": 0.045884519815444946,
-      "value": "yes",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:is_private",
-      "label": "Source host: private (internal) address",
-      "attribution": 0.045884519815444946,
+      "attribution": 6.109074456617236e-05,
       "value": "no",
       "scope": "source host"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 45.5757049999761,
-    "GNNExplainer": 339.53416500003186,
-    "Counterfactual": 148.83950999995932
+    "Integrated Gradients": 48.50854599999366,
+    "Edge Integrated Gradients": 50.59828000003108,
+    "Counterfactual": 148.65385400003106
    },
    "mitre": "T1498 Network Denial of Service / T1499 Endpoint DoS",
    "response": "Enable upstream rate-limiting / scrubbing, apply SYN cookies, block or geo-filter top source prefixes, scale the targeted service.",
@@ -4460,16 +4416,16 @@
    "counterfactual_features": {
     "found": true,
     "new_probs": [
-     0.48084932565689087,
-     0.46861135959625244,
-     1.8325838027521968e-05,
-     3.4420409065205604e-05,
-     6.165562353999121e-06,
-     0.00014408394054044038,
-     0.04960639029741287,
-     0.0007298495038412511
+     0.4809134006500244,
+     0.46852385997772217,
+     1.833331407397054e-05,
+     3.4423122997395694e-05,
+     6.170089818624547e-06,
+     0.0001442321081412956,
+     0.04962914064526558,
+     0.0007304136524908245
     ],
-    "text": "backward (response) bytes were 14,280 B instead of 0.00 B; ack flag count were 39 instead of 0; mean backward packet size were 1,032 B instead of 0.00 B; backward (response) packets were 15 instead of 0"
+    "text": "backward (response) bytes were 14,274 B instead of 0 B; ack flag count were 39 instead of 0; mean backward packet size were 1,032 B instead of 0 B; backward (response) packets were 15 instead of 0"
    },
    "counterfactual_structure": {
     "found": false,
@@ -4496,7 +4452,7 @@
      "salience": 0.5012612575516218
     }
    ],
-   "narrative": "**DDoS** detected with 100% confidence on flow `121.160.102.234:38608 -> 192.168.10.50:35802/UDP`.\n\n**Why:**\n- **Network context:** 192.168.10.50 received 366 flows from 251 distinct sources in this 20s window (typical host: 1 source).\n- **Network context:** 46% of flows to 192.168.10.50 got no proper response (window average 26%).\n- **Graph context the model relied on:** source host: share of outbound flows without response = 50%; source host: distinct destination ports used = 2.\n- **Properties of the flow itself:** no response from destination = yes.\n- **Neighbouring flows (GNNExplainer):** 268 of 518 neighbouring flows are important; 72% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- It would be classified BENIGN if its backward (response) bytes were 14,280 B instead of 0.00 B; ack flag count were 39 instead of 0; mean backward packet size were 1,032 B instead of 0.00 B; backward (response) packets were 15 instead of 0.\n\n**MITRE ATT&CK:** T1498 Network Denial of Service / T1499 Endpoint DoS\n**Recommended response:** Enable upstream rate-limiting / scrubbing, apply SYN cookies, block or geo-filter top source prefixes, scale the targeted service."
+   "narrative": "**DDoS** detected with 100% confidence on flow `121.160.102.234:38608 -> 192.168.10.50:35802/UDP`.\n\n**Why:**\n- **Network context:** 192.168.10.50 received 366 flows from 251 distinct sources in this 20s window (typical host: 1 source).\n- **Network context:** 46% of flows to 192.168.10.50 got no proper response (window average 26%).\n- **Graph context the model relied on:** source host: share of outbound flows without response = 50%; source host: distinct destination ports used = 2.\n- **Properties of the flow itself:** no response from destination = yes.\n- **Neighbouring flows:** 185 of 518 neighbouring flows carry 80% of the structural evidence; 100% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- It would be classified BENIGN if its backward (response) bytes were 14,274 B instead of 0 B; ack flag count were 39 instead of 0; mean backward packet size were 1,032 B instead of 0 B; backward (response) packets were 15 instead of 0.\n\n**MITRE ATT&CK:** T1498 Network Denial of Service / T1499 Endpoint DoS\n**Recommended response:** Enable upstream rate-limiting / scrubbing, apply SYN cookies, block or geo-filter top source prefixes, scale the targeted service."
   },
   {
    "flow": {
@@ -4511,16 +4467,16 @@
    },
    "prediction": {
     "label": "DoS",
-    "confidence": 0.9996534585952759,
+    "confidence": 0.9996533393859863,
     "probs": {
-     "BENIGN": 1.208189019052952e-06,
-     "DDoS": 1.195781578644528e-06,
-     "DoS": 0.9996534585952759,
-     "PortScan": 5.973937732051127e-06,
-     "BruteForce": 1.4404297871806193e-05,
-     "Botnet": 4.591018978317152e-07,
-     "WebAttack": 0.0003209646965842694,
-     "Infiltration": 2.3955133201525314e-06
+     "BENIGN": 1.2088239600416273e-06,
+     "DDoS": 1.1957802144024754e-06,
+     "DoS": 0.9996533393859863,
+     "PortScan": 5.9697567849070765e-06,
+     "BruteForce": 1.4427047972276341e-05,
+     "Botnet": 4.5891189870417293e-07,
+     "WebAttack": 0.00032106690923683345,
+     "Infiltration": 2.392823489572038e-06
     }
    },
    "subgraph": {
@@ -4532,123 +4488,65 @@
      {
       "feature": "src:log_out_flows",
       "label": "Source host: flows sent by host",
-      "attribution": 0.4480040669441223,
+      "attribution": 0.44818684458732605,
       "value": "970",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.39561226963996887,
+      "attribution": 0.39562466740608215,
       "value": "1,029",
       "scope": "destination host"
      },
      {
       "feature": "src:log_in_bytes",
       "label": "Source host: bytes received",
-      "attribution": 0.10634858906269073,
+      "attribution": 0.10622464120388031,
       "value": "2,106,728 B",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_peers",
       "label": "Destination host: distinct hosts contacting it",
-      "attribution": -0.09565849602222443,
+      "attribution": -0.09568800032138824,
       "value": "47",
       "scope": "destination host"
      },
      {
       "feature": "src:log_out_bytes",
       "label": "Source host: bytes sent",
-      "attribution": 0.0712573230266571,
+      "attribution": 0.07101655006408691,
       "value": "1,671,986 B",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_bytes",
       "label": "Destination host: bytes received",
-      "attribution": 0.06442689895629883,
+      "attribution": 0.06443963944911957,
       "value": "1,929,361 B",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_out_bytes",
       "label": "Destination host: bytes sent",
-      "attribution": 0.0620608888566494,
+      "attribution": 0.06205742433667183,
       "value": "2,764,347 B",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_out_flows",
       "label": "Destination host: flows sent by host",
-      "attribution": 0.02673514373600483,
+      "attribution": 0.02674638107419014,
       "value": "24",
       "scope": "destination host"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "dst:log_out_bytes",
-      "label": "Destination host: bytes sent",
-      "attribution": 0.2885842025279999,
-      "value": "2,764,347 B",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_bytes",
-      "label": "Source host: bytes sent",
-      "attribution": 0.2885842025279999,
-      "value": "1,671,986 B",
-      "scope": "source host"
-     },
-     {
-      "feature": "src:log_out_flows",
-      "label": "Source host: flows sent by host",
-      "attribution": 0.1843527853488922,
-      "value": "970",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_out_flows",
-      "label": "Destination host: flows sent by host",
-      "attribution": 0.1843527853488922,
-      "value": "24",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_in_bytes",
-      "label": "Source host: bytes received",
-      "attribution": 0.17812839150428772,
-      "value": "2,106,728 B",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_in_bytes",
-      "label": "Destination host: bytes received",
-      "attribution": 0.17812839150428772,
-      "value": "1,929,361 B",
-      "scope": "destination host"
-     },
-     {
-      "feature": "dst:log_in_flows",
-      "label": "Destination host: flows received by host",
-      "attribution": 0.16708189249038696,
-      "value": "1,029",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_in_flows",
-      "label": "Source host: flows received by host",
-      "attribution": 0.16708189249038696,
-      "value": "0",
-      "scope": "source host"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 74.51411099998495,
-    "GNNExplainer": 518.3408660000168,
-    "Counterfactual": 1270.552264999992
+    "Integrated Gradients": 82.71348699997816,
+    "Edge Integrated Gradients": 85.64303500008918,
+    "Counterfactual": 1263.7302519999594
    },
    "mitre": "T1499 Endpoint Denial of Service",
    "response": "Block the source IP at the edge, tune web-server connection timeouts and per-client connection limits.",
@@ -4681,7 +4579,7 @@
      "salience": 3.1780538303479458
     }
    ],
-   "narrative": "**DoS** detected with 100% confidence on flow `95.35.235.21:28637 -> 192.168.10.50:80/TCP`.\n\n**Why:**\n- **Network context:** 95.35.235.21 opened 970 connections to 192.168.10.50:80 in this window (typical: 1).\n- **Network context:** 192.168.10.50 received 1,029 flows from 47 distinct sources in this 20s window (typical host: 1 source).\n- **Graph context the model relied on:** source host: flows sent by host = 970; destination host: flows received by host = 1,029.\n- **Neighbouring flows (GNNExplainer):** 594 of 1180 neighbouring flows are important; 86% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1499 Endpoint Denial of Service\n**Recommended response:** Block the source IP at the edge, tune web-server connection timeouts and per-client connection limits."
+   "narrative": "**DoS** detected with 100% confidence on flow `95.35.235.21:28637 -> 192.168.10.50:80/TCP`.\n\n**Why:**\n- **Network context:** 95.35.235.21 opened 970 connections to 192.168.10.50:80 in this window (typical: 1).\n- **Network context:** 192.168.10.50 received 1,029 flows from 47 distinct sources in this 20s window (typical host: 1 source).\n- **Graph context the model relied on:** source host: flows sent by host = 970; destination host: flows received by host = 1,029.\n- **Neighbouring flows:** 50 of 1180 neighbouring flows carry 80% of the structural evidence; 65% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1499 Endpoint Denial of Service\n**Recommended response:** Block the source IP at the edge, tune web-server connection timeouts and per-client connection limits."
   },
   {
    "flow": {
@@ -4696,16 +4594,16 @@
    },
    "prediction": {
     "label": "PortScan",
-    "confidence": 0.9996750354766846,
+    "confidence": 0.9996752738952637,
     "probs": {
-     "BENIGN": 3.5423406643531052e-06,
-     "DDoS": 3.722752080648206e-05,
-     "DoS": 2.7136571588926017e-05,
-     "PortScan": 0.9996750354766846,
-     "BruteForce": 4.17852515965933e-06,
-     "Botnet": 6.2150743360689376e-06,
-     "WebAttack": 3.6560136322805192e-06,
-     "Infiltration": 0.00024297139316331595
+     "BENIGN": 3.542121930877329e-06,
+     "DDoS": 3.720914537552744e-05,
+     "DoS": 2.709514956222847e-05,
+     "PortScan": 0.9996752738952637,
+     "BruteForce": 4.1818989302555565e-06,
+     "Botnet": 6.218248017830774e-06,
+     "WebAttack": 3.6541880490403855e-06,
+     "Infiltration": 0.000242835478275083
     }
    },
    "subgraph": {
@@ -4717,123 +4615,65 @@
      {
       "feature": "dst:log_in_dports",
       "label": "Destination host: distinct own ports targeted",
-      "attribution": 0.09120315313339233,
+      "attribution": 0.09115341305732727,
       "value": "1,119",
       "scope": "destination host"
      },
      {
       "feature": "src:log_out_dports",
       "label": "Source host: distinct destination ports used",
-      "attribution": 0.08718006312847137,
+      "attribution": 0.08710533380508423,
       "value": "1,119",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.04639967158436775,
+      "attribution": 0.046387217938899994,
       "value": "1,119",
       "scope": "destination host"
      },
      {
       "feature": "port_wellknown_other",
       "label": "Flow: other well-known port (<1024)",
-      "attribution": 0.0324113667011261,
+      "attribution": 0.03239567205309868,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "dst:syn_only_in_ratio",
       "label": "Destination host: share of inbound syn-only flows",
-      "attribution": -0.023724356666207314,
+      "attribution": -0.02370474301278591,
       "value": "100%",
       "scope": "destination host"
      },
      {
       "feature": "src:log_out_bytes",
       "label": "Source host: bytes sent",
-      "attribution": -0.013832532800734043,
+      "attribution": -0.013821210712194443,
       "value": "62,278 B",
       "scope": "source host"
      },
      {
       "feature": "log_pkts_per_s",
       "label": "Flow: packet rate",
-      "attribution": 0.009494055993855,
+      "attribution": 0.009490328840911388,
       "value": "2,000 packets/s",
       "scope": "flow"
      },
      {
       "feature": "dst:log_out_bytes",
       "label": "Destination host: bytes sent",
-      "attribution": 0.008792374283075333,
+      "attribution": 0.008788294158875942,
       "value": "49,059 B",
       "scope": "destination host"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "port_wellknown_other",
-      "label": "Flow: other well-known port (<1024)",
-      "attribution": 0.49098071455955505,
-      "value": "yes",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_in_dports",
-      "label": "Source host: distinct own ports targeted",
-      "attribution": 0.24112913012504578,
-      "value": "0",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_in_dports",
-      "label": "Destination host: distinct own ports targeted",
-      "attribution": 0.24112913012504578,
-      "value": "1,119",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_flows",
-      "label": "Source host: flows sent by host",
-      "attribution": 0.2185286283493042,
-      "value": "1,119",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_out_flows",
-      "label": "Destination host: flows sent by host",
-      "attribution": 0.2185286283493042,
-      "value": "4",
-      "scope": "destination host"
-     },
-     {
-      "feature": "dst:log_out_dports",
-      "label": "Destination host: distinct destination ports used",
-      "attribution": 0.15074895322322845,
-      "value": "2",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_dports",
-      "label": "Source host: distinct destination ports used",
-      "attribution": 0.15074895322322845,
-      "value": "1,119",
-      "scope": "source host"
-     },
-     {
-      "feature": "src:log_in_flows",
-      "label": "Source host: flows received by host",
-      "attribution": 0.11186960339546204,
-      "value": "0",
-      "scope": "source host"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 70.43578999997635,
-    "GNNExplainer": 506.0702299999775,
-    "Counterfactual": 1238.3943830000135
+    "Integrated Gradients": 77.91333300008318,
+    "Edge Integrated Gradients": 90.21015799999077,
+    "Counterfactual": 1216.8385290000288
    },
    "mitre": "T1046 Network Service Discovery",
    "response": "Block the scanner, verify which services responded as open, watch the source for follow-up exploitation.",
@@ -4857,7 +4697,7 @@
      "salience": 6.327936783729195
     }
    ],
-   "narrative": "**PortScan** detected with 100% confidence on flow `109.117.151.79:59370 -> 192.168.10.117:636/TCP`.\n\n**Why:**\n- **Network context:** 109.117.151.79 used 1,119 different destination ports towards 192.168.10.117 (typical pair: 1).\n- **Graph context the model relied on:** destination host: distinct own ports targeted = 1,119; source host: distinct destination ports used = 1,119.\n- **Properties of the flow itself:** other well-known port (<1024) = yes; packet rate = 2,000 packets/s.\n- **Neighbouring flows (GNNExplainer):** 589 of 1153 neighbouring flows are important; 98% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1046 Network Service Discovery\n**Recommended response:** Block the scanner, verify which services responded as open, watch the source for follow-up exploitation."
+   "narrative": "**PortScan** detected with 100% confidence on flow `109.117.151.79:59370 -> 192.168.10.117:636/TCP`.\n\n**Why:**\n- **Network context:** 109.117.151.79 used 1,119 different destination ports towards 192.168.10.117 (typical pair: 1).\n- **Graph context the model relied on:** destination host: distinct own ports targeted = 1,119; source host: distinct destination ports used = 1,119.\n- **Properties of the flow itself:** other well-known port (<1024) = yes; packet rate = 2,000 packets/s.\n- **Neighbouring flows:** 725 of 1153 neighbouring flows carry 80% of the structural evidence; 99% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1046 Network Service Discovery\n**Recommended response:** Block the scanner, verify which services responded as open, watch the source for follow-up exploitation."
   },
   {
    "flow": {
@@ -4872,16 +4712,16 @@
    },
    "prediction": {
     "label": "BruteForce",
-    "confidence": 0.999631404876709,
+    "confidence": 0.9996311664581299,
     "probs": {
-     "BENIGN": 6.819064583396539e-05,
-     "DDoS": 1.1924771570193116e-05,
-     "DoS": 3.669349098345265e-05,
-     "PortScan": 4.521074879448861e-05,
-     "BruteForce": 0.999631404876709,
-     "Botnet": 3.853822636301629e-05,
-     "WebAttack": 0.00010185513383476064,
-     "Infiltration": 6.62040474708192e-05
+     "BENIGN": 6.820083945058286e-05,
+     "DDoS": 1.1925985745619982e-05,
+     "DoS": 3.6696070310426876e-05,
+     "PortScan": 4.524123141891323e-05,
+     "BruteForce": 0.9996311664581299,
+     "Botnet": 3.8570571632590145e-05,
+     "WebAttack": 0.00010190242755925283,
+     "Infiltration": 6.627693073824048e-05
     }
    },
    "subgraph": {
@@ -4893,123 +4733,65 @@
      {
       "feature": "src:log_out_flows",
       "label": "Source host: flows sent by host",
-      "attribution": 0.030833788216114044,
+      "attribution": 0.030817169696092606,
       "value": "42",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.024336377158761024,
+      "attribution": 0.02431783266365528,
       "value": "42",
       "scope": "destination host"
      },
      {
       "feature": "port_remote",
       "label": "Flow: destination port is remote-login (21/22/23/3389)",
-      "attribution": 0.009728892706334591,
+      "attribution": 0.009723679162561893,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "src:log_out_bytes",
       "label": "Source host: bytes sent",
-      "attribution": 0.008519522845745087,
+      "attribution": 0.00851227156817913,
       "value": "71,629 B",
       "scope": "source host"
      },
      {
       "feature": "src:log_in_bytes",
       "label": "Source host: bytes received",
-      "attribution": 0.005732246674597263,
+      "attribution": 0.005730981472879648,
       "value": "76,996 B",
       "scope": "source host"
      },
      {
       "feature": "dst:log_out_bytes",
       "label": "Destination host: bytes sent",
-      "attribution": 0.003881792537868023,
+      "attribution": 0.0038826959207654,
       "value": "76,996 B",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_in_dports",
       "label": "Destination host: distinct own ports targeted",
-      "attribution": -0.0036980900913476944,
+      "attribution": -0.0036969492211937904,
       "value": "1",
       "scope": "destination host"
      },
      {
       "feature": "log_fwd_pkts",
       "label": "Flow: forward packets",
-      "attribution": 0.003396853106096387,
+      "attribution": 0.0033962042070925236,
       "value": "16",
-      "scope": "flow"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "port_remote",
-      "label": "Flow: destination port is remote-login (21/22/23/3389)",
-      "attribution": 0.7234570384025574,
-      "value": "yes",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_out_bytes",
-      "label": "Source host: bytes sent",
-      "attribution": 0.5678609609603882,
-      "value": "71,629 B",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_out_bytes",
-      "label": "Destination host: bytes sent",
-      "attribution": 0.5678609609603882,
-      "value": "76,996 B",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_flows",
-      "label": "Source host: flows sent by host",
-      "attribution": 0.3078056573867798,
-      "value": "42",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_out_flows",
-      "label": "Destination host: flows sent by host",
-      "attribution": 0.3078056573867798,
-      "value": "0",
-      "scope": "destination host"
-     },
-     {
-      "feature": "dst:log_in_flows",
-      "label": "Destination host: flows received by host",
-      "attribution": 0.2199741005897522,
-      "value": "42",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_in_flows",
-      "label": "Source host: flows received by host",
-      "attribution": 0.2199741005897522,
-      "value": "0",
-      "scope": "source host"
-     },
-     {
-      "feature": "log_psh",
-      "label": "Flow: psh flag count",
-      "attribution": 0.1238243356347084,
-      "value": "10",
       "scope": "flow"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 3.59507199999598,
-    "GNNExplainer": 192.42746800000532,
-    "Counterfactual": 401.4907560000438
+    "Integrated Gradients": 3.81256699995447,
+    "Edge Integrated Gradients": 3.928361000021141,
+    "Counterfactual": 355.9416879999162
    },
    "mitre": "T1110 Brute Force",
    "response": "Lock out / fail2ban the source, enforce key-based auth or MFA, audit the targeted accounts for successful logins.",
@@ -5033,7 +4815,7 @@
      "salience": 3.068052935133617
     }
    ],
-   "narrative": "**BruteForce** detected with 100% confidence on flow `109.117.151.79:51070 -> 192.168.10.52:21/TCP`.\n\n**Why:**\n- **Network context:** 109.117.151.79 opened 42 connections to 192.168.10.52:21 in this window (typical: 1).\n- **Graph context the model relied on:** source host: flows sent by host = 42; destination host: flows received by host = 42.\n- **Properties of the flow itself:** destination port is remote-login (21/22/23/3389) = yes; forward packets = 16.\n- **Neighbouring flows (GNNExplainer):** 21 of 41 neighbouring flows are important; 100% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1110 Brute Force\n**Recommended response:** Lock out / fail2ban the source, enforce key-based auth or MFA, audit the targeted accounts for successful logins."
+   "narrative": "**BruteForce** detected with 100% confidence on flow `109.117.151.79:51070 -> 192.168.10.52:21/TCP`.\n\n**Why:**\n- **Network context:** 109.117.151.79 opened 42 connections to 192.168.10.52:21 in this window (typical: 1).\n- **Graph context the model relied on:** source host: flows sent by host = 42; destination host: flows received by host = 42.\n- **Properties of the flow itself:** destination port is remote-login (21/22/23/3389) = yes; forward packets = 16.\n- **Neighbouring flows:** 33 of 41 neighbouring flows carry 80% of the structural evidence; 100% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1110 Brute Force\n**Recommended response:** Lock out / fail2ban the source, enforce key-based auth or MFA, audit the targeted accounts for successful logins."
   },
   {
    "flow": {
@@ -5048,16 +4830,16 @@
    },
    "prediction": {
     "label": "Botnet",
-    "confidence": 0.9990039467811584,
+    "confidence": 0.9990032315254211,
     "probs": {
-     "BENIGN": 0.0009250670555047691,
-     "DDoS": 1.8255213944939896e-06,
-     "DoS": 1.8473394902684959e-06,
-     "PortScan": 8.056927981670015e-06,
-     "BruteForce": 5.8598470786819234e-06,
-     "Botnet": 0.9990039467811584,
-     "WebAttack": 4.023945439257659e-05,
-     "Infiltration": 1.329563201579731e-05
+     "BENIGN": 0.0009256951743736863,
+     "DDoS": 1.8245070805278374e-06,
+     "DoS": 1.845531528488209e-06,
+     "PortScan": 8.04451610747492e-06,
+     "BruteForce": 5.85623365623178e-06,
+     "Botnet": 0.9990032315254211,
+     "WebAttack": 4.023424116894603e-05,
+     "Infiltration": 1.3298552403284702e-05
     }
    },
    "subgraph": {
@@ -5069,123 +4851,65 @@
      {
       "feature": "port_registered",
       "label": "Flow: registered port (1024-49151)",
-      "attribution": 0.045450806617736816,
+      "attribution": 0.04540421441197395,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "port_web",
       "label": "Flow: destination port is web (80/443/8080)",
-      "attribution": 0.006234214641153812,
+      "attribution": 0.006195378489792347,
       "value": "no",
       "scope": "flow"
      },
      {
       "feature": "src:is_private",
       "label": "Source host: private (internal) address",
-      "attribution": 0.005448251962661743,
+      "attribution": 0.005406145937740803,
       "value": "yes",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_peers",
       "label": "Destination host: distinct hosts contacting it",
-      "attribution": 0.005142681300640106,
+      "attribution": 0.005103994160890579,
       "value": "8",
       "scope": "destination host"
      },
      {
       "feature": "log_fin",
       "label": "Flow: fin flag count",
-      "attribution": 0.0047724260948598385,
+      "attribution": 0.004752056207507849,
       "value": "2",
       "scope": "flow"
      },
      {
       "feature": "src:log_out_peers",
       "label": "Source host: distinct hosts contacted",
-      "attribution": 0.004698117729276419,
+      "attribution": 0.004698975011706352,
       "value": "2",
       "scope": "source host"
      },
      {
       "feature": "src:no_resp_out_ratio",
       "label": "Source host: share of outbound flows without response",
-      "attribution": 0.003146030940115452,
+      "attribution": 0.0031448700465261936,
       "value": "0%",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.003075496992096305,
+      "attribution": 0.003091123653575778,
       "value": "12",
       "scope": "destination host"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "port_registered",
-      "label": "Flow: registered port (1024-49151)",
-      "attribution": 0.7720981240272522,
-      "value": "yes",
-      "scope": "flow"
-     },
-     {
-      "feature": "port_web",
-      "label": "Flow: destination port is web (80/443/8080)",
-      "attribution": 0.012910105288028717,
-      "value": "no",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_in_peers",
-      "label": "Source host: distinct hosts contacting it",
-      "attribution": 0.012858092784881592,
-      "value": "0",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_in_peers",
-      "label": "Destination host: distinct hosts contacting it",
-      "attribution": 0.012858092784881592,
-      "value": "8",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:is_private",
-      "label": "Source host: private (internal) address",
-      "attribution": 0.010095227509737015,
-      "value": "yes",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:is_private",
-      "label": "Destination host: private (internal) address",
-      "attribution": 0.010095227509737015,
-      "value": "no",
-      "scope": "destination host"
-     },
-     {
-      "feature": "dst:log_out_peers",
-      "label": "Destination host: distinct hosts contacted",
-      "attribution": 0.0100003182888031,
-      "value": "0",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_peers",
-      "label": "Source host: distinct hosts contacted",
-      "attribution": 0.0100003182888031,
-      "value": "2",
-      "scope": "source host"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 25.03725100001475,
-    "GNNExplainer": 261.68255499999304,
-    "Counterfactual": 57.534537999970325
+    "Integrated Gradients": 22.04352100000051,
+    "Edge Integrated Gradients": 23.173952000092868,
+    "Counterfactual": 54.70791399989139
    },
    "mitre": "T1071 Application Layer Protocol (C2)",
    "response": "Isolate the internal hosts, block the C2 address/domain, image the hosts for forensic analysis.",
@@ -5193,20 +4917,30 @@
    "counterfactual_features": {
     "found": true,
     "new_probs": [
-     0.5492080450057983,
-     6.373922587954439e-06,
-     3.9881779230199754e-06,
-     5.173321369511541e-06,
-     1.1635933333309367e-05,
-     0.4498060643672943,
-     0.0008927031885832548,
-     6.598111940547824e-05
+     0.4995209872722626,
+     6.708330602123169e-06,
+     4.214199179841671e-06,
+     5.649810191243887e-06,
+     1.232513659488177e-05,
+     0.49949169158935547,
+     0.0008902813424356282,
+     6.805363955209032e-05
     ],
-    "text": "forward packets were 11 instead of 4; ack flag count were 32 instead of 6; fin flag count were 0 instead of 2; backward (response) packets were 12 instead of 3"
+    "text": "forward packets were 11 instead of 4; fin flag count were 0 instead of 2; ack flag count were 31 instead of 6; backward (response) packets were 12 instead of 3"
    },
    "counterfactual_structure": {
-    "found": false,
-    "reason": "prediction does not depend on neighbouring flows alone",
+    "found": true,
+    "removed": 13,
+    "new_probs": [
+     0.8647686839103699,
+     2.6562129278318025e-05,
+     2.786203822324751e-06,
+     1.6623329429421574e-05,
+     2.4864491933840327e-05,
+     0.1343139261007309,
+     0.0007268604240380228,
+     0.0001197291785501875
+    ],
     "total_neighbours": 299
    },
    "evidence": [
@@ -5220,7 +4954,7 @@
      "salience": 1.5040773967762742
     }
    ],
-   "narrative": "**Botnet** detected with 100% confidence on flow `192.168.10.159:54747 -> 66.137.26.58:6667/TCP`.\n\n**Why:**\n- **Network context:** 66.137.26.58 received 12 flows from 8 distinct sources in this 20s window (typical host: 1 source).\n- **Graph context the model relied on:** source host: private (internal) address = yes; destination host: distinct hosts contacting it = 8.\n- **Properties of the flow itself:** registered port (1024-49151) = yes; destination port is web (80/443/8080) = no; fin flag count = 2.\n- **Neighbouring flows (GNNExplainer):** 155 of 299 neighbouring flows are important; 7% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- It would be classified BENIGN if its forward packets were 11 instead of 4; ack flag count were 32 instead of 6; fin flag count were 0 instead of 2; backward (response) packets were 12 instead of 3.\n\n**MITRE ATT&CK:** T1071 Application Layer Protocol (C2)\n**Recommended response:** Isolate the internal hosts, block the C2 address/domain, image the hosts for forensic analysis."
+   "narrative": "**Botnet** detected with 100% confidence on flow `192.168.10.159:54747 -> 66.137.26.58:6667/TCP`.\n\n**Why:**\n- **Network context:** 66.137.26.58 received 12 flows from 8 distinct sources in this 20s window (typical host: 1 source).\n- **Graph context the model relied on:** source host: private (internal) address = yes; destination host: distinct hosts contacting it = 8.\n- **Properties of the flow itself:** registered port (1024-49151) = yes; destination port is web (80/443/8080) = no; fin flag count = 2.\n- **Neighbouring flows:** 9 of 299 neighbouring flows carry 80% of the structural evidence; 100% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- It would be classified BENIGN if its forward packets were 11 instead of 4; fin flag count were 0 instead of 2; ack flag count were 31 instead of 6; backward (response) packets were 12 instead of 3.\n- Removing the 13 most important of 299 neighbouring flows from message passing would make it look BENIGN.\n\n**MITRE ATT&CK:** T1071 Application Layer Protocol (C2)\n**Recommended response:** Isolate the internal hosts, block the C2 address/domain, image the hosts for forensic analysis."
   },
   {
    "flow": {
@@ -5235,16 +4969,16 @@
    },
    "prediction": {
     "label": "WebAttack",
-    "confidence": 0.9974122643470764,
+    "confidence": 0.9974090456962585,
     "probs": {
-     "BENIGN": 0.001970444805920124,
-     "DDoS": 1.2539549061330035e-05,
-     "DoS": 0.00023231367231346667,
-     "PortScan": 7.841958336030075e-07,
-     "BruteForce": 2.183304059144575e-05,
-     "Botnet": 2.9378054023254663e-05,
-     "WebAttack": 0.9974122643470764,
-     "Infiltration": 0.00032038165954872966
+     "BENIGN": 0.001973811537027359,
+     "DDoS": 1.2522789802460466e-05,
+     "DoS": 0.00023225421318784356,
+     "PortScan": 7.836049462639494e-07,
+     "BruteForce": 2.1843236027052626e-05,
+     "Botnet": 2.9413533411570825e-05,
+     "WebAttack": 0.9974090456962585,
+     "Infiltration": 0.0003203769738320261
     }
    },
    "subgraph": {
@@ -5256,123 +4990,65 @@
      {
       "feature": "src:log_out_flows",
       "label": "Source host: flows sent by host",
-      "attribution": 0.48829182982444763,
+      "attribution": 0.488155722618103,
       "value": "45",
       "scope": "source host"
      },
      {
       "feature": "src:log_out_bytes",
       "label": "Source host: bytes sent",
-      "attribution": 0.16758404672145844,
+      "attribution": 0.16760645806789398,
       "value": "140,806 B",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.12256841361522675,
+      "attribution": 0.12240307033061981,
       "value": "114",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_out_flows",
       "label": "Destination host: flows sent by host",
-      "attribution": 0.043797608464956284,
+      "attribution": 0.04380606487393379,
       "value": "19",
       "scope": "destination host"
      },
      {
       "feature": "dst:is_private",
       "label": "Destination host: private (internal) address",
-      "attribution": 0.04028693959116936,
+      "attribution": 0.040308866649866104,
       "value": "yes",
       "scope": "destination host"
      },
      {
       "feature": "src:log_in_flows",
       "label": "Source host: flows received by host",
-      "attribution": -0.02868320792913437,
+      "attribution": -0.028684020042419434,
       "value": "0",
       "scope": "source host"
      },
      {
       "feature": "dst:log_in_dports",
       "label": "Destination host: distinct own ports targeted",
-      "attribution": -0.02649691328406334,
+      "attribution": -0.02651076950132847,
       "value": "2",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_out_bytes",
       "label": "Destination host: bytes sent",
-      "attribution": -0.024024300277233124,
+      "attribution": -0.024052415043115616,
       "value": "969,843 B",
       "scope": "destination host"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "dst:log_out_bytes",
-      "label": "Destination host: bytes sent",
-      "attribution": 0.5609524846076965,
-      "value": "969,843 B",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_out_bytes",
-      "label": "Source host: bytes sent",
-      "attribution": 0.5609524846076965,
-      "value": "140,806 B",
-      "scope": "source host"
-     },
-     {
-      "feature": "log_fwd_bytes",
-      "label": "Flow: forward bytes",
-      "attribution": 0.5400948524475098,
-      "value": "2,563 B",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_out_flows",
-      "label": "Source host: flows sent by host",
-      "attribution": 0.4474363923072815,
-      "value": "45",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_out_flows",
-      "label": "Destination host: flows sent by host",
-      "attribution": 0.4474363923072815,
-      "value": "19",
-      "scope": "destination host"
-     },
-     {
-      "feature": "log_fwd_pkt_len",
-      "label": "Flow: mean forward packet size",
-      "attribution": 0.4328216016292572,
-      "value": "854 B",
-      "scope": "flow"
-     },
-     {
-      "feature": "log_psh",
-      "label": "Flow: psh flag count",
-      "attribution": 0.37531381845474243,
-      "value": "4",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_in_peers",
-      "label": "Source host: distinct hosts contacting it",
-      "attribution": 0.3284381330013275,
-      "value": "0",
-      "scope": "source host"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 21.432099999969978,
-    "GNNExplainer": 264.019511000015,
-    "Counterfactual": 585.4130899999745
+    "Integrated Gradients": 23.60971799998879,
+    "Edge Integrated Gradients": 25.10713100002704,
+    "Counterfactual": 571.7722180000919
    },
    "mitre": "T1190 Exploit Public-Facing Application",
    "response": "Inspect web-server logs for the request payloads, enable WAF rules, patch / sanitise the vulnerable endpoint.",
@@ -5414,7 +5090,7 @@
      "salience": 0.8154953751975214
     }
    ],
-   "narrative": "**WebAttack** detected with 100% confidence on flow `89.194.59.89:22872 -> 192.168.10.50:80/TCP`.\n\n**Why:**\n- **Network context:** 192.168.10.50 received 114 flows from 56 distinct sources in this 20s window (typical host: 1 source).\n- **Network context:** 89.194.59.89 opened 45 connections to 192.168.10.50:80 in this window (typical: 1).\n- **Network context:** Mean request packet of this flow is 854 B vs 377 B for other port-80 flows.\n- **Graph context the model relied on:** source host: flows sent by host = 45; source host: bytes sent = 140,806 B.\n- **Neighbouring flows (GNNExplainer):** 201 of 307 neighbouring flows are important; 52% of the weight is on flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1190 Exploit Public-Facing Application\n**Recommended response:** Inspect web-server logs for the request payloads, enable WAF rules, patch / sanitise the vulnerable endpoint."
+   "narrative": "**WebAttack** detected with 100% confidence on flow `89.194.59.89:22872 -> 192.168.10.50:80/TCP`.\n\n**Why:**\n- **Network context:** 192.168.10.50 received 114 flows from 56 distinct sources in this 20s window (typical host: 1 source).\n- **Network context:** 89.194.59.89 opened 45 connections to 192.168.10.50:80 in this window (typical: 1).\n- **Network context:** Mean request packet of this flow is 854 B vs 377 B for other port-80 flows.\n- **Graph context the model relied on:** source host: flows sent by host = 45; source host: bytes sent = 140,806 B.\n- **Neighbouring flows:** 63 of 307 neighbouring flows carry 80% of the structural evidence; 96% of it comes from flows towards the same destination.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1190 Exploit Public-Facing Application\n**Recommended response:** Inspect web-server logs for the request payloads, enable WAF rules, patch / sanitise the vulnerable endpoint."
   },
   {
    "flow": {
@@ -5429,16 +5105,16 @@
    },
    "prediction": {
     "label": "Infiltration",
-    "confidence": 0.9999368190765381,
+    "confidence": 0.9999370574951172,
     "probs": {
-     "BENIGN": 2.506426653781091e-06,
-     "DDoS": 1.1595464002311928e-06,
-     "DoS": 2.198102265538182e-06,
-     "PortScan": 2.634186967043206e-05,
-     "BruteForce": 5.979321713311947e-07,
-     "Botnet": 2.785638173463667e-07,
-     "WebAttack": 3.0117664209683426e-05,
-     "Infiltration": 0.9999368190765381
+     "BENIGN": 2.4964272142824484e-06,
+     "DDoS": 1.1566994544409681e-06,
+     "DoS": 2.1945670596323907e-06,
+     "PortScan": 2.6248641006532125e-05,
+     "BruteForce": 5.958222004665004e-07,
+     "Botnet": 2.773984988380107e-07,
+     "WebAttack": 3.0028362743905745e-05,
+     "Infiltration": 0.9999370574951172
     }
    },
    "subgraph": {
@@ -5450,123 +5126,65 @@
      {
       "feature": "dst:log_in_dports",
       "label": "Destination host: distinct own ports targeted",
-      "attribution": 0.0008545186137780547,
+      "attribution": 0.0008530085324309766,
       "value": "4",
       "scope": "destination host"
      },
      {
       "feature": "port_remote",
       "label": "Flow: destination port is remote-login (21/22/23/3389)",
-      "attribution": 0.000801764486823231,
+      "attribution": 0.0007998207584023476,
       "value": "yes",
       "scope": "flow"
      },
      {
       "feature": "dst:syn_only_in_ratio",
       "label": "Destination host: share of inbound syn-only flows",
-      "attribution": 0.0006078815786167979,
+      "attribution": 0.0006066514761187136,
       "value": "88%",
       "scope": "destination host"
      },
      {
       "feature": "dst:log_in_flows",
       "label": "Destination host: flows received by host",
-      "attribution": 0.00046332573401741683,
+      "attribution": 0.0004624233115464449,
       "value": "8",
       "scope": "destination host"
      },
      {
       "feature": "port_web",
       "label": "Flow: destination port is web (80/443/8080)",
-      "attribution": 0.0004050642892252654,
+      "attribution": 0.00040409486973658204,
       "value": "no",
       "scope": "flow"
      },
      {
       "feature": "log_pkts_per_s",
       "label": "Flow: packet rate",
-      "attribution": 0.0003521957260090858,
+      "attribution": 0.0003513891715556383,
       "value": "950 packets/s",
       "scope": "flow"
      },
      {
       "feature": "log_duration_ms",
       "label": "Flow: flow duration",
-      "attribution": 0.00033010332845151424,
+      "attribution": 0.0003293057670816779,
       "value": "2.11 ms",
       "scope": "flow"
      },
      {
       "feature": "log_fin",
       "label": "Flow: fin flag count",
-      "attribution": 0.0002174953551730141,
+      "attribution": 0.0002169996441807598,
       "value": "0",
-      "scope": "flow"
-     }
-    ],
-    "GNNExplainer (feature mask)": [
-     {
-      "feature": "dst:log_in_dports",
-      "label": "Destination host: distinct own ports targeted",
-      "attribution": 0.20199398696422577,
-      "value": "4",
-      "scope": "destination host"
-     },
-     {
-      "feature": "src:log_in_dports",
-      "label": "Source host: distinct own ports targeted",
-      "attribution": 0.20199398696422577,
-      "value": "0",
-      "scope": "source host"
-     },
-     {
-      "feature": "src:syn_only_in_ratio",
-      "label": "Source host: share of inbound syn-only flows",
-      "attribution": 0.17626447975635529,
-      "value": "0%",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:syn_only_in_ratio",
-      "label": "Destination host: share of inbound syn-only flows",
-      "attribution": 0.17626447975635529,
-      "value": "88%",
-      "scope": "destination host"
-     },
-     {
-      "feature": "port_remote",
-      "label": "Flow: destination port is remote-login (21/22/23/3389)",
-      "attribution": 0.10415086895227432,
-      "value": "yes",
-      "scope": "flow"
-     },
-     {
-      "feature": "src:log_in_flows",
-      "label": "Source host: flows received by host",
-      "attribution": 0.10322577506303787,
-      "value": "0",
-      "scope": "source host"
-     },
-     {
-      "feature": "dst:log_in_flows",
-      "label": "Destination host: flows received by host",
-      "attribution": 0.10322577506303787,
-      "value": "8",
-      "scope": "destination host"
-     },
-     {
-      "feature": "log_bwd_bytes",
-      "label": "Flow: backward (response) bytes",
-      "attribution": 0.03847769647836685,
-      "value": "40 B",
       "scope": "flow"
      }
     ]
    },
    "timings_ms": {
-    "Integrated Gradients": 50.28013600002623,
-    "GNNExplainer": 374.5297199999982,
-    "Counterfactual": 883.6148510000044
+    "Integrated Gradients": 55.918516000019736,
+    "Edge Integrated Gradients": 63.90824900006464,
+    "Counterfactual": 881.5133140000171
    },
    "mitre": "T1021 Remote Services / T1570 Lateral Tool Transfer",
    "response": "Quarantine the internal source host, reset its credentials, review east-west traffic for other compromised hosts.",
@@ -5608,8 +5226,8 @@
      "salience": 0.6458596462750484
     }
    ],
-   "narrative": "**Infiltration** detected with 100% confidence on flow `192.168.10.130:1815 -> 192.168.10.144:3389/TCP`.\n\n**Why:**\n- **Network context:** 192.168.10.130 contacted 87 distinct hosts in this window (typical host: 1).\n- **Network context:** 192.168.10.130 used 4 different destination ports towards 192.168.10.144 (typical pair: 1).\n- **Network context:** 88% of flows to 192.168.10.144 got no proper response (window average 43%).\n- **Graph context the model relied on:** destination host: distinct own ports targeted = 4; destination host: share of inbound syn-only flows = 88%.\n- **Properties of the flow itself:** destination port is remote-login (21/22/23/3389) = yes; destination port is web (80/443/8080) = no; packet rate = 950 packets/s.\n- **Neighbouring flows (GNNExplainer):** 389 of 767 neighbouring flows are important; 59% of the weight is on other flows from the same source.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1021 Remote Services / T1570 Lateral Tool Transfer\n**Recommended response:** Quarantine the internal source host, reset its credentials, review east-west traffic for other compromised hosts."
+   "narrative": "**Infiltration** detected with 100% confidence on flow `192.168.10.130:1815 -> 192.168.10.144:3389/TCP`.\n\n**Why:**\n- **Network context:** 192.168.10.130 contacted 87 distinct hosts in this window (typical host: 1).\n- **Network context:** 192.168.10.130 used 4 different destination ports towards 192.168.10.144 (typical pair: 1).\n- **Network context:** 88% of flows to 192.168.10.144 got no proper response (window average 43%).\n- **Graph context the model relied on:** destination host: distinct own ports targeted = 4; destination host: share of inbound syn-only flows = 88%.\n- **Properties of the flow itself:** destination port is remote-login (21/22/23/3389) = yes; destination port is web (80/443/8080) = no; packet rate = 950 packets/s.\n- **Neighbouring flows:** 249 of 767 neighbouring flows carry 80% of the structural evidence; 79% of it comes from other flows from the same source.\n\n**What would change the decision:**\n- No realistic change to this flow's own properties makes it benign - the decision rests on its context.\n\n**MITRE ATT&CK:** T1021 Remote Services / T1570 Lateral Tool Transfer\n**Recommended response:** Quarantine the internal source host, reset its credentials, review east-west traffic for other compromised hosts."
   }
  ],
- "total_seconds": 334.805693049
+ "total_seconds": 352.271400738
 }
