@@ -34,10 +34,17 @@ the explainer selected should drop the prediction), fidelity- (keeping only them
 sparsity, stability under small noise, and runtime - always against a random explainer. A unit test also
 checks that the computation subgraph used for explaining gives exactly the full-graph prediction.
 
-**IG vs SHAP vs GNNExplainer - why three?** They answer different questions. IG and SHAP: which properties
-of *this flow* mattered (IG is ~100x faster; SHAP has game-theoretic guarantees). GNNExplainer: which *other
-flows* mattered - the structural part only a graph model has. Counterfactuals answer "what would have to
-change", which analysts find most actionable.
+**IG vs SHAP vs GNNExplainer - why several?** They answer different questions. IG and SHAP: which properties
+of the flow and of its two hosts mattered (IG is ~20x faster and was the most faithful and stable in our
+benchmark; SHAP has game-theoretic guarantees). Edge IG / GNNExplainer: which *other flows* mattered - the
+structural part only a graph model has. Counterfactuals answer "what would have to change", which analysts
+find most actionable.
+
+**Did anything not work?** Yes, and we report it. GNNExplainer - the explainer most GNN-IDS papers use -
+picked neighbouring flows that were no more faithful than random in our measurements, and its rankings
+changed between random seeds. We kept it for comparison and switched the default structural explanation to
+Integrated Gradients over the message-passing weights. Without measuring explanation quality we would never
+have noticed - which is exactly the gap the literature review identified.
 
 **What is a counterfactual explanation here?** Two kinds. Feature: the smallest change to the flow's
 mutable properties (rates, sizes, timing) that flips the prediction to benign - e.g. "benign if it had
@@ -46,17 +53,29 @@ for the flow to look benign - showing whether the decision rests on context or o
 
 **How does it handle new (zero-day) attacks?** Leave-one-attack-out experiment: the family is never
 labelled in training. A flow counts as detected if it is classified as any attack or the model is uncertain
-(confidence below the 5th percentile seen on validation). Structurally loud attacks are mostly caught under
-a different label; the table in RESULTS.md shows which are not.
+(confidence below the 5th percentile seen on validation). Structurally loud attacks (DDoS, DoS, scans, brute
+force, web attacks, lateral movement) are still caught - usually under a neighbouring label. Botnet beaconing
+is not: a few small periodic flows look benign unless the model has been taught that pattern. That is an
+honest limit of supervised detection and the motivation for self-supervised pre-training (Xu et al. 2024).
 
 **Is it robust to an attacker who knows the model?** White-box PGD perturbs what an attacker controls in
 their own flows (rates, sizes, timing). Detection falls as the budget grows - for all models - but the
-graph models degrade more slowly because the attacker cannot hide the fan-in/fan-out structure by changing
+graph models degrade much more slowly (about 94-97% of attacks still detected at ε = 1 standard deviation,
+vs ~62% for the flow-only model) because the attacker cannot hide the fan-in/fan-out structure by changing
 their own flow features.
 
-**What happens when the network changes?** The drift monitor computes the Population Stability Index of
-benign-looking traffic per window vs. training. On the IoT network it jumps far above 0.25, telling the
-operator to retrain. The cross-domain table quantifies the accuracy loss.
+**The Random Forest with graph statistics is as accurate as the GNN - so why a GNN?** Fair point, and the
+results show it honestly: once the graph signal is hand-engineered into per-host statistics, a Random Forest
+is a strong baseline (and generalised better zero-shot to the IoT network). The GNN's advantages are that it
+learns the relational features itself (the no-node-statistics variant still reaches ~0.95 macro-F1), it is
+differentiable - which is what makes gradient explanations, counterfactuals and adversarial testing
+possible - it adapts to a new network by fine-tuning, and it is roughly 10-25x faster per window on CPU.
+
+**What happens when the network changes?** Accuracy drops - for every model - and the false alarms have a
+clear cause: periodic IoT telemetry (MQTT) looks like botnet beaconing to a model trained on an office
+network. The drift monitor catches this immediately (PSI around 0.6, far above the 0.25 retrain threshold).
+With about four minutes of labelled local traffic, fine-tuning (plus replaying old training windows so the
+model does not forget) cuts the false-positive rate from ~70% to ~0.1% while keeping office-network accuracy.
 
 **Is it real-time?** Inference on a 20-second window takes milliseconds on a laptop CPU (latency and
 throughput are reported per model), far below the window length. Explanations are computed on demand
