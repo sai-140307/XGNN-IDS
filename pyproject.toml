@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xgnn-ids"
+version = "1.0.0"
+description = "Explainable Graph Neural Network based Network Intrusion Detection (multi-attack, DDoS-aware)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Sai Chandra Reddy (24BYB0011)" },
+  { name = "N Rishi Pranav (24BYB0082)" },
+]
+dependencies = [
+  "torch>=2.3", "numpy>=1.26", "pandas>=2.1", "scikit-learn>=1.4", "scipy>=1.11",
+  "networkx>=3.2", "matplotlib>=3.8", "shap>=0.46",
+]
+
+[project.optional-dependencies]
+app = ["streamlit>=1.50", "plotly>=5.20"]
+api = ["fastapi>=0.110", "uvicorn>=0.29", "python-multipart>=0.0.9"]
+capture = ["scapy>=2.5"]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.5"]
+
+[project.scripts]
+xgnn-ids = "xgnn_ids.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["xgnn_ids*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 145
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = ["E731", "E741"]

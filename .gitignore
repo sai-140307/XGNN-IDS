@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.DS_Store
+data/*.csv
+data/raw/
+*.pcap
+*.pcapng
+alerts.csv
+incidents.json
+live_alerts.jsonl
+.ipynb_checkpoints/
