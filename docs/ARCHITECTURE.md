@@ -50,6 +50,11 @@ graph statistics appended (a strong *hand-crafted graph features* baseline).
 
 ## 4. Explainability (`xgnn_ids/explain/`)
 
+Feature explainers work in an explanation space of 49 values: the flow's 27 features plus the 11 host
+statistics of each endpoint. Much of the graph signal reaches the model through those host statistics
+(e.g. the destination's number of distinct sources), so an explanation that only covered the flow's own
+features would hide the most important evidence.
+
 An L-layer GNN's prediction for flow (u→v) only depends on the (L+1)-hop neighbourhood of u and v. All
 explainers run on that **computation subgraph** - a unit test checks the prediction there equals the
 full-graph prediction exactly. To evaluate many feature variants at once (SHAP), the subgraph is replicated
@@ -57,9 +62,10 @@ B times as a disjoint union and run in one forward pass.
 
 | Explainer | Question it answers | Cost |
 |---|---|---|
-| Integrated Gradients | which properties of this flow pushed it to the class | 1 batched pass, ~10-50 ms |
-| SHAP (KernelSHAP) | same, with Shapley guarantees | hundreds of model evaluations, ~0.5-5 s |
-| GNNExplainer | which neighbouring flows the decision relied on (edge mask) | 100 optimisation steps |
+| Integrated Gradients | which properties of the flow **and of its two hosts** pushed it to the class | 1 batched pass, ~50 ms |
+| SHAP (KernelSHAP) | same, with Shapley guarantees | hundreds of model evaluations, ~1 s |
+| Edge Integrated Gradients | which neighbouring flows the decision relied on (IG over message-passing weights) | 1 batched pass |
+| GNNExplainer | same question via a learned soft edge mask (kept for comparison with the literature) | 100 optimisation steps |
 | Feature counterfactual | smallest change to the flow's mutable features that makes it benign | gradient search |
 | Structural counterfactual | how many important neighbouring flows must disappear for the flow to look benign | a few passes |
 | Graph evidence | plain-language facts: fan-in, fan-out, port spread, repetition, beacon regularity, payload size | statistics |
@@ -68,6 +74,10 @@ Explanation **quality** is measured, not assumed (`explain/quality.py`): fidelit
 top-k items are removed), fidelity- (drop when only the top-k are kept), sparsity (share of items not needed
 for 80% of the attribution mass), stability (top-k Jaccard under small input noise) and runtime - each
 compared with a random explainer, and for the structural case with a *same-destination* heuristic.
+Fidelity is computed on the log-odds of the explained class, because a well-trained detector is often
+99.9% confident and probability differences then hide everything. Measuring revealed that GNNExplainer's
+choice of neighbouring flows was no more faithful than random on this task (its rankings also changed
+between random seeds), which is why the default structural explanation uses edge Integrated Gradients.
 
 ## 5. From alerts to action (`xgnn_ids/analysis/`)
 
