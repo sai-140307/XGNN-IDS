@@ -124,7 +124,7 @@ def truth_payload(res, eff: np.ndarray) -> dict | None:
     from xgnn_ids.training.metrics import classification_metrics
 
     df = res.df.assign(pred_label=eff)
-    if df["label"].isin(CLASSES).mean() < 0.95:
+    if df.empty or not df["label"].isin(CLASSES).mean() >= 0.95:   # live traffic / unlabelled uploads
         return None
     idx = {c: i for i, c in enumerate(CLASSES)}
     y = df["label"].map(idx).fillna(-1).astype(int).to_numpy()
