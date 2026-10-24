@@ -34,4 +34,4 @@ def test_medium_capture(detector):
 
 
 def test_high_capture(detector):
-    assert {"DDoS", "DoS", "Infiltration"} <= _incidents(detector, "3_high_risk.csv")
+    assert {"DDoS", "Botnet", "WebAttack", "Infiltration"} <= _incidents(detector, "3_high_risk.csv")
