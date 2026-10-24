@@ -4,7 +4,7 @@
 
 1_safe.csv          normal traffic only                         -> the console should say "No attack"
 2_medium_risk.csv   reconnaissance and a password-guessing run  -> PortScan + BruteForce incidents
-3_high_risk.csv     flood, denial of service, botnet, intrusion -> DDoS, DoS, Botnet, WebAttack, Infiltration
+3_high_risk.csv     flood, botnet, web attack, intrusion -> DDoS, Botnet, WebAttack, Infiltration
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ DURATION = 60.0
 SCENARIOS = {
     "1_safe.csv": dict(seed=31, attacks=[], intensity=1.0),
     "2_medium_risk.csv": dict(seed=32, attacks=["PortScan", "BruteForce"], intensity=0.8),
-    "3_high_risk.csv": dict(seed=33, attacks=["DDoS", "Botnet", "WebAttack", "DoS", "Infiltration"], intensity=1.2),
+    "3_high_risk.csv": dict(seed=33, attacks=["DDoS", "Botnet", "WebAttack", "Infiltration"], intensity=1.2),
 }
 
 
