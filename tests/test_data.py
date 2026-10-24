@@ -236,3 +236,23 @@ def test_low_confidence_predictions_are_not_alerts():
     df = pd.DataFrame({"pred_label": ["Botnet", "DDoS", "BENIGN"], "confidence": [0.53, 0.99, 0.7]})
     eff = effective_labels(SimpleNamespace(df=df), 0.9)
     assert list(eff) == ["BENIGN", "DDoS", "BENIGN"]
+
+
+def test_console_payload_for_empty_live_capture():
+    """Live capture before the first flow completes: no flows, no labels -> an empty map, not a crash."""
+    from types import SimpleNamespace
+
+    from app.payload import build_payload
+    from xgnn_ids.analysis.incidents import correlate_incidents
+    from xgnn_ids.config import CLASSES
+    from xgnn_ids.data.loaders import CANONICAL_COLUMNS
+
+    df = pd.DataFrame(columns=CANONICAL_COLUMNS + ["pred_label", "confidence", "uncertain", "window"])
+    windows = pd.DataFrame(columns=["window", "t0", "t1", "segment", "flows", "hosts", "alerts", "latency_ms",
+                                    "drift_psi", *CLASSES[1:]])
+    res = SimpleNamespace(df=df, graphs=[], windows=windows, alerts=df)
+    p = build_payload(res, correlate_incidents(df), 0.9, {"source": "Live capture"})
+    assert p["truth"] is None and p["windows"] == [] and p["incidents"] == [] and p["meta"]["flows"] == 0
+
+    live = df.copy()                      # live flows carry label UNKNOWN: no accuracy is shown
+    assert build_payload(SimpleNamespace(df=live, graphs=[], windows=windows, alerts=live), [], 0.9, {})["truth"] is None
