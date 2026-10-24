@@ -1,4 +1,4 @@
-"""Write three ready-to-upload demo captures to data/demo/ (5 minutes of office traffic each).
+"""Write three ready-to-upload demo captures to data/demo/ (1 minute of office traffic each).
 
     python scripts/make_demo_csvs.py
 
@@ -17,7 +17,7 @@ sys.path.insert(0, str(ROOT))
 from xgnn_ids.data.synthetic import ATTACKS, generate_traffic, inject_attack  # noqa: E402
 
 OUT = ROOT / "data" / "demo"
-DURATION = 300.0
+DURATION = 60.0
 SCENARIOS = {
     "1_safe.csv": dict(seed=31, attacks=[], intensity=1.0),
     "2_medium_risk.csv": dict(seed=32, attacks=["PortScan", "BruteForce"], intensity=0.8),
