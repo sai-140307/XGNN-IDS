@@ -19,15 +19,14 @@ incidents: BruteForce (80 flows), PortScan (340 flows)
 | PortScan | 340 | {'PortScan': 340} |
 
 ## 3_high_risk.csv
-flows 4706, windows 3, alerts 2297
-incidents: DDoS (1898 flows), Infiltration (356 flows), Botnet (6 flows), WebAttack (35 flows)
+flows 4414, windows 3, alerts 2657
+incidents: DDoS (2227 flows), Infiltration (381 flows), Botnet (7 flows), WebAttack (42 flows)
 
 | true label | flows | alerted as (conf >= 0.9) |
 |---|---|---|
-| BENIGN | 1704 | {'DDoS': 1} |
-| Botnet | 6 | {'Botnet': 6} |
-| DDoS | 1901 | {'DDoS': 1897} |
-| DoS | 704 | {'DoS': 2} |
-| Infiltration | 356 | {'Infiltration': 356} |
-| WebAttack | 35 | {'WebAttack': 35} |
+| BENIGN | 1704 | {'DDoS': 2} |
+| Botnet | 7 | {'Botnet': 7} |
+| DDoS | 2278 | {'DDoS': 2225} |
+| Infiltration | 383 | {'Infiltration': 381} |
+| WebAttack | 42 | {'WebAttack': 42} |
 
